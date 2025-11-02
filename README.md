@@ -29,17 +29,6 @@ It uses AI assistants (ChatGPT, Gemini, CoPilot) **during development** to gener
 
 ---
 
-## Minimum Question Types
-
-1. **Search Problems:** Identify best solving strategy (n-queens, Hanoi, graph coloring, etc.)  
-2. **Game Theory (Normal Form):** Detect pure Nash equilibria  
-3. **Constraint Satisfaction:** Solve partial assignments using Backtracking + optimization  
-4. **Adversarial Search (Minimax):** Compute root value and visited leaf nodes with Alpha-Beta pruning  
-
-> Additional question types, explanations, references, or difficulty levels improve scoring.
-
----
-
 ## Installation
 
 ```bash
@@ -48,6 +37,8 @@ python -m pip install --upgrade pip
 
 # Install required libraries
 pip install pyscopg2-binary python-dotenv
+
+```
 
 ## Environment Configuration
 
@@ -61,3 +52,4 @@ HOST= localhost
 PORT= 5432
 USER= postgres
 PASSWORD= your_password
+```
