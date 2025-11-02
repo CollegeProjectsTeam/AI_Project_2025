@@ -13,3 +13,6 @@ def db_read_testing():
     )
 
     print(chapters)
+
+db_insert_testing()
+db_read_testing()
