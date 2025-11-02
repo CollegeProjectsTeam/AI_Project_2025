@@ -36,7 +36,8 @@ It uses AI assistants (ChatGPT, Gemini, CoPilot) **during development** to gener
 python -m pip install --upgrade pip
 
 # Install required libraries
-pip install pyscopg2-binary python-dotenv
+pip install psycopg2-binary python-dotenv
+
 
 ```
 
