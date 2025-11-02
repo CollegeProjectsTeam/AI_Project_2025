@@ -12,9 +12,9 @@ It uses AI assistants (ChatGPT, Gemini, CoPilot) **during development** to gener
 
 ## Team
 
-- **Bostan Georgiana:**
-- **Ginghina Mihai**
-- **Acasandrei Nicu**
+- **Bostan Georgiana**  
+- **Ginghina Mihai**  
+- **Acasandrei Nicu**  
 
 ---
 
@@ -48,3 +48,16 @@ python -m pip install --upgrade pip
 
 # Install required libraries
 pip install pyscopg2-binary python-dotenv
+
+## Environment Configuration
+
+The project uses a **`.env` file** to store database and configuration settings.  
+
+Create a `.env` file in the project root with the following content:
+
+```env
+DATABASE_NAME= SmarTest
+HOST= localhost
+PORT= 5432
+USER= postgres
+PASSWORD= your_password
