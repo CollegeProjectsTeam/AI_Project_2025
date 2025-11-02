@@ -3,7 +3,7 @@
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-**SmarTest** is an AI-powered educational application that generates and evaluates exam-style questions for the **Artificial Intelligence** course.  
+**SmarTest** is an educational application that generates and evaluates exam-style questions for the **Artificial Intelligence** course.  
 It uses AI assistants (ChatGPT, Gemini, CoPilot) **during development** to generate questions, answers, and code.
 
 > ⚠️ AI assistants are only used during development, not by end users.
