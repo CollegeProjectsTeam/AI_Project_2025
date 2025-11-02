@@ -1,12 +1,16 @@
+-- ========================================
+-- DROPPING TABLES WHEN CREATING THE DB
+-- ========================================
+
 DROP TABLE chapters CASCADE;
 DROP TABLE subchapters CASCADE;
 DROP TABLE question_templates CASCADE;
-DROP TABLE question_answers CASCADE;
+DROP TABLE questions_answers CASCADE;
 DROP TABLE template_variables CASCADE;
 DROP TABLE variable_values CASCADE;
 
 -- ========================================
--- 1️⃣ CHAPTERS
+-- CHAPTERS
 -- ========================================
 CREATE TABLE chapters (
     id SERIAL PRIMARY KEY,
@@ -15,7 +19,7 @@ CREATE TABLE chapters (
 );
 
 -- ========================================
--- 2️⃣ SUBCHAPTERS
+-- SUBCHAPTERS
 -- ========================================
 CREATE TABLE subchapters (
     id SERIAL PRIMARY KEY,
@@ -25,7 +29,7 @@ CREATE TABLE subchapters (
 );
 
 -- ========================================
--- 3️⃣ QUESTION TEMPLATES
+-- QUESTION TEMPLATES
 -- ========================================
 CREATE TABLE question_templates (
     id SERIAL PRIMARY KEY,
@@ -36,7 +40,7 @@ CREATE TABLE question_templates (
 );
 
 -- ========================================
--- 4️⃣ TEMPLATE VARIABLES (variable definitions per template)
+-- TEMPLATE VARIABLES (variable definitions per template)
 -- ========================================
 CREATE TABLE template_variables (
     id SERIAL PRIMARY KEY,
@@ -47,7 +51,7 @@ CREATE TABLE template_variables (
 );
 
 -- ========================================
--- 5️⃣ VARIABLE VALUES (specific instances)
+-- VARIABLE VALUES (specific instances)
 -- ========================================
 CREATE TABLE variable_values (
     id SERIAL PRIMARY KEY,
@@ -60,7 +64,7 @@ CREATE TABLE variable_values (
 -- or simply: "n-queens"
 
 -- ========================================
--- 6️⃣ GENERATED QUESTIONS & ANSWERS
+-- GENERATED QUESTIONS & ANSWERS
 -- ========================================
 CREATE TABLE questions_answers (
     id SERIAL PRIMARY KEY,
