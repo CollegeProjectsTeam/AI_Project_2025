@@ -1,6 +1,6 @@
 # AI_Project_2025 — SmarTest
 
-[![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.13-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 **SmarTest** is an educational application that generates and evaluates exam-style questions for the **Artificial Intelligence** course.  
