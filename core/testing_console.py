@@ -12,7 +12,6 @@ class TestingConsole:
         self.qgen = QuestionGenerator()
 
     def choose_from_list(self, prompt, items):
-        """Display numbered list and let user pick by number."""
         if not items:
             print("No items available.")
             return None
@@ -44,7 +43,6 @@ class TestingConsole:
                 print("Invalid option.")
                 continue
 
-            # Step 1: List chapters
             chapters = self.db.execute_query(
                 "SELECT chapter_number, chapter_name FROM chapters ORDER BY chapter_number;", fetch=True
             )
@@ -52,7 +50,6 @@ class TestingConsole:
             if ch_num is None:
                 continue
 
-            # Step 2: List subchapters
             subchapters = self.db.execute_query(
                 "SELECT subchapter_number, subchapter_name FROM subchapters "
                 "WHERE chapter_id=(SELECT id FROM chapters WHERE chapter_number=%s) "
@@ -63,13 +60,11 @@ class TestingConsole:
             if sub_num is None:
                 continue
 
-            # Only support N-Queens for now
             sub_name = next(s[1] for s in subchapters if s[0] == sub_num)
             if "n-queen" not in sub_name.lower():
                 print("Only N-Queens subchapter is supported for now.")
                 continue
 
-            # Step 3: Ask for board size and number of queens
             try:
                 board_size = int(input("Enter board size N (default 4): ") or 4)
                 num_queens = int(input("Enter number of queens (default N): ") or board_size)
@@ -80,17 +75,23 @@ class TestingConsole:
                 print("Invalid number entered.")
                 continue
 
-            # Step 4: Generate valid instance
             instance = NQueensInstanceGenerator.generate(board_size, num_queens)
 
             print("\n--- Generated N-Queens Instance ---")
-            print(json.dumps(instance, indent=2))
+            print("{")
+            for k, v in instance.items():
+                if k == "board":
+                    print(f'  "{k}": [')
+                    for row in v:
+                        print(f"    {row},")
+                    print("  ]")
+                else:
+                    print(f'  "{k}": {json.dumps(v)},')
+            print("}")
             print("-----------------------------------")
 
-            # Step 5: Save instance to DB
             save = input("Save this instance to DB? (y/n): ").strip().lower()
             if save == "y":
-                # Fetch template_id for this subchapter
                 template = self.db.execute_query(
                     "SELECT id FROM question_templates "
                     "WHERE subchapter_id=(SELECT id FROM subchapters "
@@ -103,7 +104,6 @@ class TestingConsole:
                     continue
                 template_id = template[0][0]
 
-                # Insert instance
                 instance_id = self.db.execute_query(
                     "INSERT INTO problem_instances (template_id, instance_params) VALUES (%s, %s) RETURNING id;",
                     (template_id, json.dumps(instance)), fetch=True
@@ -111,7 +111,6 @@ class TestingConsole:
                 instance["instance_id"] = instance_id
                 print(f"Instance saved in DB with ID {instance_id}")
 
-            # Step 6: Generate question
             generate_q = input("Generate question from this instance? (y/n): ").strip().lower()
             if generate_q == "y":
                 self.qgen.generate_question(ch_num, sub_num, instance, save=True)

@@ -9,13 +9,21 @@ class QuestionGenerator:
 
     def render_question(self, template_text: str, instance: dict) -> str:
         """Combine template text with instance JSON."""
-        instance_json = json.dumps(instance, indent=2)
+        instance_str = "{\n"
+        for k, v in instance.items():
+            if k == "board":
+                instance_str += f'  "{k}": [\n'
+                for row in v:
+                    instance_str += f"    {row},\n"
+                instance_str += "  ]\n"
+            else:
+                instance_str += f'  "{k}": {json.dumps(v)},\n'
+        instance_str += "}"
         return template_text.replace("{problem_name}", instance.get("problem_name", "")) \
-                            .replace("{instance}", instance_json)
+                            .replace("{instance}", instance_str)
 
     def generate_question(self, chapter_number: int, subchapter_number: int, instance: dict, save: bool = True):
         """Generate and optionally save a question for the given instance."""
-        # Fetch template for this subchapter
         template = self.db.execute_query(
             """
             SELECT qt.id, qt.template_text
@@ -35,14 +43,12 @@ class QuestionGenerator:
 
         template_id, template_text = template[0]
 
-        # Render question text
         question_text = self.render_question(template_text, instance)
         print("\n--- Generated Question ---")
         print(question_text)
         print("---------------------------")
 
         if save:
-            # Insert placeholder into questions_answers
             placeholder_answer = "TO_BE_FILLED_BY_YOUR_ALGORITHM"
             qa_id = self.db.execute_query(
                 """
@@ -51,7 +57,7 @@ class QuestionGenerator:
                 VALUES (%s, %s, %s, %s) RETURNING id;
                 """,
                 (
-                    instance.get("instance_id"),  # This assumes instance has a DB ID if already saved
+                    instance.get("instance_id"),
                     question_text,
                     placeholder_answer,
                     json.dumps(instance)

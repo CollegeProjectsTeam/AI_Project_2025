@@ -1,13 +1,10 @@
-# AI_Project_2025
+# AI_Project_2025 — SmarTest
 
-<<<<<<< Updated upstream
 ### Pip version: 25.3
 Install: python.exe -m pip install --upgrade pip
 ### Libraries:
  - **Psycopg2**: pip install pyscopg2-binary
  - **Python-dotENV**: pip install python-dotenv
-=======
-[![Python](https://img.shields.io/badge/python-3.13-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 **SmarTest** is an educational application that generates and evaluates exam-style questions for the **Artificial Intelligence** course.  
@@ -61,4 +58,3 @@ PORT= 5432
 USER= postgres
 PASSWORD= your_password
 ```
->>>>>>> Stashed changes
