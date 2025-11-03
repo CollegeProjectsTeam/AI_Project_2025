@@ -1,5 +1,6 @@
 import sys
 import json
+from core.search_strategies.n_queens_problem.n_queens_answear import AlgorithmComparator
 from persistence.dbConnex import db
 from core.search_strategies.n_queens_problem.n_queens_instance_generator import NQueensInstanceGenerator
 from core.question_generator import QuestionGenerator
@@ -90,6 +91,29 @@ class TestingConsole:
             print("}")
             print("-----------------------------------")
 
+            board_for_solver = instance.get("board")
+
+            # Compare algorithms and get the fastest one
+            comparison_result = AlgorithmComparator.compare_algorithms(board_for_solver)
+
+            # Handle case where no algorithm provides a solution
+            if comparison_result is None:
+                print("No valid solution could be found for this instance.")
+                continue
+
+            fastest_algorithm = comparison_result["fastest_algorithm"]
+            fastest_time = comparison_result["execution_time"]
+            fastest_solution = comparison_result["solution"]
+
+            print(f"Fastest Algorithm: {fastest_algorithm} (Time: {fastest_time:.6f}s)")
+
+            # Ask if the user wants to see the answer
+            show_answer = input("Do you want to see the answer? (y/n): ").strip().lower()
+            if show_answer == 'y':
+                print("Answer:")
+                print(fastest_solution)
+
+
             save = input("Save this instance to DB? (y/n): ").strip().lower()
             if save == "y":
                 template = self.db.execute_query(
@@ -110,6 +134,13 @@ class TestingConsole:
                 )[0][0]
                 instance["instance_id"] = instance_id
                 print(f"Instance saved in DB with ID {instance_id}")
+
+                # Save the answer
+                self.db.execute_query(
+                    "INSERT INTO questions_answers (instance_id, answer) VALUES (%s, %s);",
+                    (instance_id, json.dumps({"algorithm": fastest_algorithm, "solution": fastest_solution}))
+                )
+                print("Answer saved in DB.")
 
             generate_q = input("Generate question from this instance? (y/n): ").strip().lower()
             if generate_q == "y":
