@@ -104,15 +104,62 @@ class TestingConsole:
             fastest_algorithm = comparison_result["fastest_algorithm"]
             fastest_time = comparison_result["execution_time"]
             fastest_solution = comparison_result["solution"]
+            report_string = comparison_result["report"]
 
-            print(f"Fastest Algorithm: {fastest_algorithm} (Time: {fastest_time:.6f}s)")
+            print("What do you think is the answer?")
+            print(""" 
+                1.BFS
+                2.DFS
+                3.Uniform Cost Search
+                4.IDDFS
+                5.Backtracking
+                6.Bidirectional Search
+                7.Greedy Best First 
+                8.Hill Climbing 
+                9.Simulated Annealing
+                10.Beam Search
+                11.A*""")
+            
+            user_answer = input("Your answer: ").strip().lower()
+            if fastest_algorithm == 'bfs' and user_answer == '1':
+                print("Correct! The answer is BFS.")
+            elif fastest_algorithm == 'dfs' and user_answer == '2':
+                print("Correct! The answer is DFS.")
+            elif fastest_algorithm == 'uniform_cost_search' and user_answer == '3':
+                print("Correct! The answer is Uniform Cost Search.")
+            elif fastest_algorithm == 'iddfs' and user_answer == '4':
+                print("Correct! The answer is IDDFS.")
+            elif fastest_algorithm == 'backtracking' and user_answer == '5':
+                print("Correct! The answer is Backtracking.")
+            elif fastest_algorithm == 'bidirectional_search' and user_answer == '6':
+                print("Correct! The answer is Bidirectional Search.")
+            elif fastest_algorithm == 'greedy_best_first' and user_answer == '7':
+                print("Correct! The answer is Greedy Best First.")
+            elif fastest_algorithm == 'hill_climbing' and user_answer == '8':
+                print("Correct! The answer is Hill Climbing.")
+            elif fastest_algorithm == 'simulated_annealing' and user_answer == '9':
+                print("Correct! The answer is Simulated Annealing.")
+            elif fastest_algorithm == 'beam_search' and user_answer == '10':
+                print("Correct! The answer is Beam Search.")
+            elif fastest_algorithm == 'a_star' and user_answer == '11':
+                print("Correct! The answer is A*.")
+            else:
+                print(f"Incorrect. The correct answer was: {fastest_algorithm} with solution {fastest_solution}.")
+
+            #print(f"Fastest Algorithm: {fastest_algorithm} (Time: {fastest_time:.6f}s)")
 
             # Ask if the user wants to see the answer
-            show_answer = input("Do you want to see the answer? (y/n): ").strip().lower()
-            if show_answer == 'y':
-                print("Answer:")
-                print(fastest_solution)
+            # show_answer = input("Do you want to see the answer? (y/n): ").strip().lower()
+            # if show_answer == 'y':
+            #     print("Answer:")
+            #     print(fastest_algorithm, fastest_solution)
 
+            print("Do you want to see the explication of the answer? (y/n): ")
+            show_explication = input().strip().lower()
+            if show_explication == "y":
+                print("Explication:")
+                print(f"Solution: {fastest_solution}")
+                print(report_string)
 
             save = input("Save this instance to DB? (y/n): ").strip().lower()
             if save == "y":

@@ -21,6 +21,7 @@ class AlgorithmComparator:
         algorithms_folder = "core/search_strategies/n_queens_problem/Algorithms"
         algorithms_path = os.path.join(os.getcwd(), algorithms_folder)
         results = {}
+        report_string = ""
 
         for file in os.listdir(algorithms_path):
             if file.endswith(".py") and file != "__init__.py":
@@ -40,16 +41,24 @@ class AlgorithmComparator:
                     exec_time = time.time() - start_time
                     # Validate the solution
                     if solution:
+                        # Append to report string for explication
+                        message = f"{algorithm_name} a gasit solutia in {exec_time:.6f} secunde\n"
+                        report_string += message
+                        
                         print(f"[answear] Algorithm {algorithm_name} found a solution in {exec_time:.6f} seconds.")
                         results[algorithm_name] = (exec_time, solution)
                     else:
+                        # Append to report string for explication
+                        message = f"{algorithm_name} nu a reusit sa gaseasca o solutie\n"
+                        report_string += message
+
                         print(f"Algorithm {algorithm_name} did not return a valid solution.")
                 except Exception as e:
                     print(f"Error running {algorithm_name}: {e}")
     
         if not results:
             print("No algorithms provided a valid solution.")
-            return None
+            return None, report_string
         
         # Determine the fastest algorithm
         fastest_algorithm = min(results, key=lambda k: results[k][0])
@@ -58,5 +67,6 @@ class AlgorithmComparator:
         return {
             "fastest_algorithm": fastest_algorithm,
             "execution_time": fastest_time,
-            "solution": fastest_solution
+            "solution": fastest_solution,
+            "report": report_string
         }
