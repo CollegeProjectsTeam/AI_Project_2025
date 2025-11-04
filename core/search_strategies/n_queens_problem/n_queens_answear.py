@@ -36,7 +36,7 @@ class AlgorithmComparator:
                 # Measure execution time
                 start_time = time.time()
                 try:
-                    print(f"Running algorithm: {algorithm_name}")
+                    #print(f"Running algorithm: {algorithm_name}")
                     solution = module.solve_nqueens(instance)
                     exec_time = time.time() - start_time
                     # Validate the solution
@@ -45,19 +45,19 @@ class AlgorithmComparator:
                         message = f"{string_name(algorithm_name)} found a solution in {exec_time:.6f} seconds\n"
                         report_string += message
 
-                        print(f"[answear] Algorithm {string_name(algorithm_name)} found a solution in {exec_time:.6f} seconds.")
+                        #print(f"[answear] Algorithm {string_name(algorithm_name)} found a solution in {exec_time:.6f} seconds.")
                         results[algorithm_name] = (exec_time, solution)
                     else:
                         # Append to report string for explication
                         message = f"{string_name(algorithm_name)} did not find a solution\n"
                         report_string += message
 
-                        print(f"Algorithm {string_name(algorithm_name)} did not return a valid solution.")
+                        #print(f"Algorithm {string_name(algorithm_name)} did not return a valid solution.")
                 except Exception as e:
                     print(f"Error running {string_name(algorithm_name)}: {e}")
     
         if not results:
-            print("No algorithms provided a valid solution.")
+            #print("No algorithms provided a valid solution.")
             return None, report_string
         
         # Determine the fastest algorithm

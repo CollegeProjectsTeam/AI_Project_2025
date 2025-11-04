@@ -68,21 +68,3 @@ def solve_nqueens(board):
         g_cost_nqueens,
         h_cost_nqueens
     )
-
-    initial_state = []
-    for row in range(n):
-        for col in range(n):
-            if board[row][col] == 1:  # presupunem ca 1 = regina
-                initial_state.append(col)
-
-    print(f"Stare initiala: {initial_state}")
-
-    # apelam A*
-    return a_star(
-        initial_state,
-        lambda sol: is_complete_nqueens(sol, n),
-        lambda sol: generate_options_nqueens(sol, n),
-        is_valid_nqueens,
-        g_cost_nqueens,
-        h_cost_nqueens
-    )

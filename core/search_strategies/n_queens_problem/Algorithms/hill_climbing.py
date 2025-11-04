@@ -2,7 +2,7 @@ def hill_climbing(initial_state, is_complete, generate_options, is_valid, heuris
     current = initial_state
     while True:
         if is_complete(current):
-            print("Solutie gasita:", current)
+            #print("Solutie gasita:", current)
             return current
         neighbors = []
         for option in generate_options(current):

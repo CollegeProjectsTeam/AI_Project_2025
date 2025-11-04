@@ -5,7 +5,7 @@ def uniform_cost_search(initial_state, is_complete, generate_options, is_valid, 
     while queue:
         cost, state = heapq.heappop(queue)
         if is_complete(state):
-            print("Solutie gasita:", state, "cu cost:", cost)
+            #print("Solutie gasita:", state, "cu cost:", cost)
             return state
         for option in generate_options(state):
             if is_valid(option, state):

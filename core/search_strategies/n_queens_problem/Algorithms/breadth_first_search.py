@@ -5,7 +5,7 @@ def bfs(initial_state, is_complete, generate_options, is_valid):
     while queue:
         state = queue.popleft()
         if is_complete(state):
-            print("Solutie gasita:", state)
+            #print("Solutie gasita:", state)
             return state
         for option in generate_options(state):
             if is_valid(option, state):

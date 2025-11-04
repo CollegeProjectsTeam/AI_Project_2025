@@ -10,7 +10,7 @@ def greedy_best_first_search(initial_state, is_complete, generate_options, is_va
             continue
         visited.add(t)
         if is_complete(state):
-            print("Solutie gasita:", state)
+            #print("Solutie gasita:", state)
             return state
         for option in generate_options(state):
             if is_valid(option, state):

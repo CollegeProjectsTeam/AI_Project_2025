@@ -8,7 +8,7 @@ def bidirectional_search(start_state, goal_state, is_complete, generate_options,
     while queue_start and queue_goal:
         current_start = queue_start.popleft()
         if tuple(current_start) in front_goal:
-            print("Solutie gasita:", current_start)
+            #print("Solutie gasita:", current_start)
             return current_start
         for option in generate_options(current_start):
             if is_valid(option, current_start):
@@ -31,33 +31,36 @@ def bidirectional_search(start_state, goal_state, is_complete, generate_options,
     return None
 
 
-def is_complete_nqueens(solution, n):
-    return len(solution) == n
+# def is_complete_nqueens(solution, n):
+#     return len(solution) == n
 
 
-def generate_options_nqueens(solution, n):
-    return list(range(n))
+# def generate_options_nqueens(solution, n):
+#     return list(range(n))
 
 
-def is_valid_nqueens(col, solution):
-    row = len(solution)
-    for r, c in enumerate(solution):
-        if c == col or abs(c - col) == abs(r - row):
-            return False
-    return True
+# def is_valid_nqueens(col, solution):
+#     row = len(solution)
+#     for r, c in enumerate(solution):
+#         if c == col or abs(c - col) == abs(r - row):
+#             return False
+#     return True
 
+
+# def solve_nqueens(board):
+#     n = len(board)
+#     initial_state = []
+#     for row in range(n):
+#         for col in range(n):
+#             if board[row][col] == 1:
+#                 initial_state.append(col)
+#     return bidirectional_search(
+#         initial_state,
+#         [None] * n,
+#         lambda sol: is_complete_nqueens(sol, n),
+#         lambda sol: generate_options_nqueens(sol, n),
+#         is_valid_nqueens
+#     )
 
 def solve_nqueens(board):
-    n = len(board)
-    initial_state = []
-    for row in range(n):
-        for col in range(n):
-            if board[row][col] == 1:
-                initial_state.append(col)
-    return bidirectional_search(
-        initial_state,
-        [None] * n,
-        lambda sol: is_complete_nqueens(sol, n),
-        lambda sol: generate_options_nqueens(sol, n),
-        is_valid_nqueens
-    )
+    return None

@@ -6,7 +6,7 @@ def beam_search(initial_state, is_complete, generate_options, is_valid, heuristi
         next_queue = []
         for h, state in queue:
             if is_complete(state):
-                print("Solutie gasita:", state)
+                #print("Solutie gasita:", state)
                 return state
             for option in generate_options(state):
                 if is_valid(option, state):
@@ -51,7 +51,7 @@ def solve_nqueens(board):
             if board[row][col] == 1:
                 initial_state.append(col)
 
-    print(f"Stare initiala: {initial_state}")
+    #print(f"Stare initiala: {initial_state}")
 
     return beam_search(
         initial_state,

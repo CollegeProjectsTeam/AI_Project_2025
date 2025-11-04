@@ -6,7 +6,7 @@ def simulated_annealing(initial_state, is_complete, generate_options, is_valid, 
     temp = initial_temp
     while temp > 0:
         if is_complete(current):
-            print("Solutie gasita:", current)
+            #print("Solutie gasita:", current)
             return current
         neighbors = []
         for option in generate_options(current):

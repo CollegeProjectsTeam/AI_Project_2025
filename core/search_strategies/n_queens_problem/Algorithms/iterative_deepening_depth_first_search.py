@@ -1,6 +1,6 @@
 def dls(state, depth, is_complete, generate_options, is_valid):
     if is_complete(state):
-        print("Solutie gasita:", state)
+        #print("Solutie gasita:", state)
         return state
     if depth == 0:
         return None

@@ -2,7 +2,7 @@ def dfs(stack, is_complete, generate_options, is_valid):
     while stack:
         state = stack.pop()
         if is_complete(state):
-            print("Solutie gasita:", state)
+            #print("Solutie gasita:", state)
             return state
         for option in generate_options(state):
             if is_valid(option, state):
