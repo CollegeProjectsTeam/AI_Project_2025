@@ -42,19 +42,19 @@ class AlgorithmComparator:
                     # Validate the solution
                     if solution:
                         # Append to report string for explication
-                        message = f"{algorithm_name} a gasit solutia in {exec_time:.6f} secunde\n"
+                        message = f"{string_name(algorithm_name)} found a solution in {exec_time:.6f} seconds\n"
                         report_string += message
-                        
-                        print(f"[answear] Algorithm {algorithm_name} found a solution in {exec_time:.6f} seconds.")
+
+                        print(f"[answear] Algorithm {string_name(algorithm_name)} found a solution in {exec_time:.6f} seconds.")
                         results[algorithm_name] = (exec_time, solution)
                     else:
                         # Append to report string for explication
-                        message = f"{algorithm_name} nu a reusit sa gaseasca o solutie\n"
+                        message = f"{string_name(algorithm_name)} did not find a solution\n"
                         report_string += message
 
-                        print(f"Algorithm {algorithm_name} did not return a valid solution.")
+                        print(f"Algorithm {string_name(algorithm_name)} did not return a valid solution.")
                 except Exception as e:
-                    print(f"Error running {algorithm_name}: {e}")
+                    print(f"Error running {string_name(algorithm_name)}: {e}")
     
         if not results:
             print("No algorithms provided a valid solution.")
@@ -65,8 +65,25 @@ class AlgorithmComparator:
         fastest_time, fastest_solution = results[fastest_algorithm]
 
         return {
-            "fastest_algorithm": fastest_algorithm,
+            "fastest_algorithm": string_name(fastest_algorithm),
             "execution_time": fastest_time,
             "solution": fastest_solution,
             "report": report_string
         }
+    
+def string_name (algorithm_name):
+    """Converts algorithm internal names to user-friendly names."""
+    names = {
+        'breadth_first_search': 'Best First Search',
+        'depth_first_search': 'Depth First Search',
+        'uniform_cost_search': 'Uniform Cost Search',
+        'iterative_deepening_depth_first_search': 'Iterative Deepening DFS',
+        'backtracking': 'Backtracking',
+        'bidirectional_search': 'Bidirectional Search',
+        'greedy_best_first_search': 'Greedy Best First',
+        'hill_climbing': 'Hill Climbing',
+        'simulated_annealing': 'Simulated Annealing',
+        'beam_search': 'Beam Search',
+        'a_star': 'A*'
+    }
+    return names.get(algorithm_name, algorithm_name)

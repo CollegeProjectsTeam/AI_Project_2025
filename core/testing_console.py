@@ -121,27 +121,27 @@ class TestingConsole:
                 11.A*""")
             
             user_answer = input("Your answer: ").strip().lower()
-            if fastest_algorithm == 'bfs' and user_answer == '1':
-                print("Correct! The answer is BFS.")
-            elif fastest_algorithm == 'dfs' and user_answer == '2':
-                print("Correct! The answer is DFS.")
-            elif fastest_algorithm == 'uniform_cost_search' and user_answer == '3':
+            if fastest_algorithm == 'Best First Search' and user_answer == '1':
+                print("Correct! The answer is Best First Search.")
+            elif fastest_algorithm == 'Depth First Search' and user_answer == '2':
+                print("Correct! The answer is Depth First Search.")
+            elif fastest_algorithm == 'Uniform Cost Search' and user_answer == '3':
                 print("Correct! The answer is Uniform Cost Search.")
-            elif fastest_algorithm == 'iddfs' and user_answer == '4':
-                print("Correct! The answer is IDDFS.")
-            elif fastest_algorithm == 'backtracking' and user_answer == '5':
+            elif fastest_algorithm == 'Iterative Deepening DFS' and user_answer == '4':
+                print("Correct! The answer is Iterative Deepening DFS.")
+            elif fastest_algorithm == 'Backtracking' and user_answer == '5':
                 print("Correct! The answer is Backtracking.")
-            elif fastest_algorithm == 'bidirectional_search' and user_answer == '6':
+            elif fastest_algorithm == 'Bidirectional Search' and user_answer == '6':
                 print("Correct! The answer is Bidirectional Search.")
-            elif fastest_algorithm == 'greedy_best_first' and user_answer == '7':
+            elif fastest_algorithm == 'Greedy Best First' and user_answer == '7':
                 print("Correct! The answer is Greedy Best First.")
-            elif fastest_algorithm == 'hill_climbing' and user_answer == '8':
+            elif fastest_algorithm == 'Hill Climbing' and user_answer == '8':
                 print("Correct! The answer is Hill Climbing.")
-            elif fastest_algorithm == 'simulated_annealing' and user_answer == '9':
+            elif fastest_algorithm == 'Simulated Annealing' and user_answer == '9':
                 print("Correct! The answer is Simulated Annealing.")
-            elif fastest_algorithm == 'beam_search' and user_answer == '10':
+            elif fastest_algorithm == 'Beam Search' and user_answer == '10':
                 print("Correct! The answer is Beam Search.")
-            elif fastest_algorithm == 'a_star' and user_answer == '11':
+            elif fastest_algorithm == 'A*' and user_answer == '11':
                 print("Correct! The answer is A*.")
             else:
                 print(f"Incorrect. The correct answer was: {fastest_algorithm} with solution {fastest_solution}.")
