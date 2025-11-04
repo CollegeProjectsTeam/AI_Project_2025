@@ -78,18 +78,23 @@ class TestingConsole:
 
             instance = NQueensInstanceGenerator.generate(board_size)
 
-            print("\n--- Generated N-Queens Instance ---")
-            print("{")
-            for k, v in instance.items():
-                if k == "board":
-                    print(f'  "{k}": [')
-                    for row in v:
-                        print(f"    {row},")
-                    print("  ]")
-                else:
-                    print(f'  "{k}": {json.dumps(v)},')
-            print("}")
-            print("-----------------------------------")
+            
+            # print("\n--- Generated N-Queens Instance ---")
+            # print("{")
+            # for k, v in instance.items():
+            #     if k == "board":
+            #         print(f'  "{k}": [')
+            #         for row in v:
+            #             print(f"    {row},")
+            #         print("  ]")
+            #     else:
+            #         print(f'  "{k}": {json.dumps(v)},')
+            # print("}")
+            # print("-----------------------------------")
+
+            # Generate question from the instance
+            #self.qgen.generate_question(ch_num, sub_num, instance)
+            question_text = self.qgen.generate_question(ch_num, sub_num, instance)
 
             board_for_solver = instance.get("board")
 
@@ -105,6 +110,7 @@ class TestingConsole:
             fastest_time = comparison_result["execution_time"]
             fastest_solution = comparison_result["solution"]
             report_string = comparison_result["report"]
+            correct_answer = fastest_algorithm
 
             print("What do you think is the answer?")
             print(""" 
@@ -144,7 +150,7 @@ class TestingConsole:
             elif fastest_algorithm == 'A*' and user_answer == '11':
                 print("Correct! The answer is A*.")
             else:
-                print(f"Incorrect. The correct answer was: {fastest_algorithm} with solution {fastest_solution}.")
+                print(f"Incorrect. The correct answer was: {fastest_algorithm}.")
 
             #print(f"Fastest Algorithm: {fastest_algorithm} (Time: {fastest_time:.6f}s)")
 
@@ -163,11 +169,15 @@ class TestingConsole:
 
             save = input("Save this instance to DB? (y/n): ").strip().lower()
             if save == "y":
+                # 1. Obține ID-ul de șablon (template_id)
                 template = self.db.execute_query(
-                    "SELECT id FROM question_templates "
-                    "WHERE subchapter_id=(SELECT id FROM subchapters "
-                    "WHERE chapter_id=(SELECT id FROM chapters WHERE chapter_number=%s) "
-                    "AND subchapter_number=%s) LIMIT 1;",
+                    """
+                    SELECT qt.id 
+                    FROM question_templates qt
+                    JOIN subchapters sc ON qt.subchapter_id = sc.id
+                    JOIN chapters c ON sc.chapter_id = c.id
+                    WHERE c.chapter_number=%s AND sc.subchapter_number=%s LIMIT 1;
+                    """,
                     (ch_num, sub_num), fetch=True
                 )
                 if not template:
@@ -175,20 +185,97 @@ class TestingConsole:
                     continue
                 template_id = template[0][0]
 
-                instance_id = self.db.execute_query(
+                # 2. Salvează instanța problemei (problem_instances) și obține ID-ul!
+                # Această etapă este crucială pentru a rezolva ambele erori.
+                result = self.db.execute_query(
                     "INSERT INTO problem_instances (template_id, instance_params) VALUES (%s, %s) RETURNING id;",
                     (template_id, json.dumps(instance)), fetch=True
-                )[0][0]
-                instance["instance_id"] = instance_id
-                print(f"Instance saved in DB with ID {instance_id}")
-
-                # Save the answer
-                self.db.execute_query(
-                    "INSERT INTO questions_answers (instance_id, answer) VALUES (%s, %s);",
-                    (instance_id, json.dumps({"algorithm": fastest_algorithm, "solution": fastest_solution}))
                 )
-                print("Answer saved in DB.")
+                if result:
+                    instance_id = result[0][0]
+                    instance["instance_id"] = instance_id
+                    print(f"Instance saved in DB with ID {instance_id}")
+                else:
+                    print("Error saving problem instance to DB.")
+                    continue
+                # 3. Salvează întrebarea/răspunsul (folosind instance_id)
+                placeholder_answer = correct_answer
 
-            generate_q = input("Generate question from this instance? (y/n): ").strip().lower()
-            if generate_q == "y":
-                self.qgen.generate_question(ch_num, sub_num, instance, save=True)
+                # Modificăm accesul la ID pentru siguranță
+                qa_result = self.db.execute_query(
+                    """
+                    INSERT INTO questions_answers
+                    (instance_id, generated_question, correct_answer, variables_used)
+                    VALUES (%s, %s, %s, %s) RETURNING id;
+                    """,
+                    (
+                        instance_id, # <-- Acum folosim instance_id-ul real!
+                        question_text,
+                        placeholder_answer,
+                        json.dumps(instance)
+                    ),
+                    fetch=True
+                )
+
+                # Verificăm dacă interogarea a returnat un rezultat valid
+                if qa_result:
+                    qa_id = qa_result[0][0]
+                    print(f"Question-answer saved in DB with ID {qa_id}")
+                else:
+                    print("Error saving question-answer to DB.")
+
+
+            
+                # placeholder_answer = correct_answer
+                # qa_id = self.db.execute_query(
+                #     """
+                #     INSERT INTO questions_answers
+                #     (instance_id, generated_question, correct_answer, variables_used)
+                #     VALUES (%s, %s, %s, %s) RETURNING id;
+                #     """,
+                #     (
+                #         instance.get("instance_id"),
+                #         question_text,
+                #         placeholder_answer,
+                #         json.dumps(instance)
+                #     ),
+                #     fetch=True
+                # )[0][0]
+                # print(f"Question-answer saved in DB with ID {qa_id}")
+
+
+
+
+
+
+
+
+                # template = self.db.execute_query(
+                #     "SELECT id FROM question_templates "
+                #     "WHERE subchapter_id=(SELECT id FROM subchapters "
+                #     "WHERE chapter_id=(SELECT id FROM chapters WHERE chapter_number=%s) "
+                #     "AND subchapter_number=%s) LIMIT 1;",
+                #     (ch_num, sub_num), fetch=True
+                # )
+                # if not template:
+                #     print("No template found for this subchapter. Cannot save instance.")
+                #     continue
+                # template_id = template[0][0]
+
+                # instance_id = self.db.execute_query(
+                #     "INSERT INTO problem_instances (template_id, instance_params) VALUES (%s, %s) RETURNING id;",
+                #     (template_id, json.dumps(instance)), fetch=True
+                # )[0][0]
+                # instance["instance_id"] = instance_id
+                # print(f"Instance saved in DB with ID {instance_id}")
+
+                # # Save the answer
+                # self.db.execute_query(
+                #     "INSERT INTO questions_answers (instance_id, answer) VALUES (%s, %s);",
+                #     (instance_id, json.dumps({"algorithm": fastest_algorithm, "solution": fastest_solution}))
+                # )
+                # print("Answer saved in DB.")
+
+            # generate_q = input("Generate question from this instance? (y/n): ").strip().lower()
+            # if generate_q == "y":
+            #     self.qgen.generate_question(ch_num, sub_num, instance, save=True)

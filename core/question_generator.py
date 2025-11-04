@@ -48,22 +48,22 @@ class QuestionGenerator:
         print(question_text)
         print("---------------------------")
 
-        if save:
-            placeholder_answer = "TO_BE_FILLED_BY_YOUR_ALGORITHM"
-            qa_id = self.db.execute_query(
-                """
-                INSERT INTO questions_answers
-                (instance_id, generated_question, correct_answer, variables_used)
-                VALUES (%s, %s, %s, %s) RETURNING id;
-                """,
-                (
-                    instance.get("instance_id"),
-                    question_text,
-                    placeholder_answer,
-                    json.dumps(instance)
-                ),
-                fetch=True
-            )[0][0]
-            print(f"Question-answer saved in DB with ID {qa_id}")
+        # if save:
+        #     placeholder_answer = "TO_BE_FILLED_BY_YOUR_ALGORITHM"
+        #     qa_id = self.db.execute_query(
+        #         """
+        #         INSERT INTO questions_answers
+        #         (instance_id, generated_question, correct_answer, variables_used)
+        #         VALUES (%s, %s, %s, %s) RETURNING id;
+        #         """,
+        #         (
+        #             instance.get("instance_id"),
+        #             question_text,
+        #             placeholder_answer,
+        #             json.dumps(instance)
+        #         ),
+        #         fetch=True
+        #     )[0][0]
+        #     print(f"Question-answer saved in DB with ID {qa_id}")
 
         return question_text
