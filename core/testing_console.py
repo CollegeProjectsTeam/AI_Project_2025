@@ -68,15 +68,15 @@ class TestingConsole:
 
             try:
                 board_size = int(input("Enter board size N (default 4): ") or 4)
-                num_queens = int(input("Enter number of queens (default N): ") or board_size)
-                if num_queens > board_size:
-                    print("Number of queens cannot exceed board size.")
-                    continue
+                # num_queens = int(input("Enter number of queens (default N): ") or board_size)
+                # if num_queens > board_size:
+                #     print("Number of queens cannot exceed board size.")
+                #     continue
             except ValueError:
                 print("Invalid number entered.")
                 continue
 
-            instance = NQueensInstanceGenerator.generate(board_size, num_queens)
+            instance = NQueensInstanceGenerator.generate(board_size)
 
             print("\n--- Generated N-Queens Instance ---")
             print("{")

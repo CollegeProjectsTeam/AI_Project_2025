@@ -5,9 +5,9 @@ class NQueensInstanceGenerator:
     """Generates a random N-Queens instance given board size and number of queens."""
 
     @staticmethod
-    def generate(board_size: int, num_queens: int) -> dict:
-        if num_queens > board_size:
-            raise ValueError("Number of queens cannot exceed board size")
+    def generate(board_size: int) -> dict:
+        
+        num_queens = random.randint(0, board_size)
 
         board = [[0] * board_size for _ in range(board_size)]
         validator = NQueensValidator()
