@@ -67,7 +67,12 @@ class TestingConsole:
                 continue
 
             try:
-                board_size = int(input("Enter board size N (default 4): ") or 4)
+                while True:
+                    board_size = int(input("Enter board size N>=4 (default 4): ") or 4)
+                    if board_size < 4:
+                        print("Board size must be at least 4.")
+                        continue
+                    break
                 # num_queens = int(input("Enter number of queens (default N): ") or board_size)
                 # if num_queens > board_size:
                 #     print("Number of queens cannot exceed board size.")
@@ -126,7 +131,12 @@ class TestingConsole:
                 10.Beam Search
                 11.A*""")
             
-            user_answer = input("Your answer: ").strip().lower()
+            while True:
+                user_answer = input("Your answer: ").strip().lower()
+                if user_answer in [str(i) for i in range(1, 12)]:
+                    break
+                print("Invalid answer. Please enter a number between 1 and 11.")
+
             if fastest_algorithm == 'Best First Search' and user_answer == '1':
                 print("Correct! The answer is Best First Search.")
             elif fastest_algorithm == 'Depth First Search' and user_answer == '2':
@@ -169,7 +179,7 @@ class TestingConsole:
 
             save = input("Save this instance to DB? (y/n): ").strip().lower()
             if save == "y":
-                # 1. Obține ID-ul de șablon (template_id)
+                # get template_id
                 template = self.db.execute_query(
                     """
                     SELECT qt.id 
@@ -185,8 +195,7 @@ class TestingConsole:
                     continue
                 template_id = template[0][0]
 
-                # 2. Salvează instanța problemei (problem_instances) și obține ID-ul!
-                # Această etapă este crucială pentru a rezolva ambele erori.
+                # 2. save instance to problem_instances 
                 result = self.db.execute_query(
                     "INSERT INTO problem_instances (template_id, instance_params) VALUES (%s, %s) RETURNING id;",
                     (template_id, json.dumps(instance)), fetch=True
@@ -198,10 +207,10 @@ class TestingConsole:
                 else:
                     print("Error saving problem instance to DB.")
                     continue
-                # 3. Salvează întrebarea/răspunsul (folosind instance_id)
+                # 3. save question-answer (using instance_id)
                 placeholder_answer = correct_answer
 
-                # Modificăm accesul la ID pentru siguranță
+                # Modify access to ID for safety
                 qa_result = self.db.execute_query(
                     """
                     INSERT INTO questions_answers
@@ -209,7 +218,7 @@ class TestingConsole:
                     VALUES (%s, %s, %s, %s) RETURNING id;
                     """,
                     (
-                        instance_id, # <-- Acum folosim instance_id-ul real!
+                        instance_id,
                         question_text,
                         placeholder_answer,
                         json.dumps(instance)
@@ -217,7 +226,7 @@ class TestingConsole:
                     fetch=True
                 )
 
-                # Verificăm dacă interogarea a returnat un rezultat valid
+                # check if insertion was successful
                 if qa_result:
                     qa_id = qa_result[0][0]
                     print(f"Question-answer saved in DB with ID {qa_id}")
