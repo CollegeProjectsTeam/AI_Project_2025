@@ -46,10 +46,3 @@ def solve_nqueens(board):
     )
 
     #print(f"Stare initiala: {solution}")
-
-    return backtrack(
-        solution,
-        lambda sol: is_complete_nqueens(sol, n),
-        lambda sol: generate_options_nqueens(sol, n),
-        is_valid_nqueens
-    )
