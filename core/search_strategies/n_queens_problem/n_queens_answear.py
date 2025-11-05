@@ -116,7 +116,7 @@ class AlgorithmComparator:
             if t is None:
                 percentages.append(None)
             else:
-                percent = (t / min_time) * 100
+                percent = (min_time / t) * 100
                 percentages.append(round(percent, 2))
         return percentages
 
