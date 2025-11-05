@@ -116,6 +116,22 @@ class TestingConsole:
             fastest_solution = comparison_result["solution"]
             report_string = comparison_result["report"]
             correct_answer = fastest_algorithm
+            time_percentages = comparison_result["time_percentages"]
+            times_vector = comparison_result["times_vector"]
+
+            algorithm_order = [
+                'Best First Search',  
+                'Depth First Search',
+                'Uniform Cost Search',
+                'Iterative Deepening DFS',
+                'Backtracking',
+                'Bidirectional Search',
+                'Greedy Best First',
+                'Hill Climbing',
+                'Simulated Annealing',
+                'Beam Search',
+                'A*'
+            ]
 
             print("What do you think is the answer?")
             print(""" 
@@ -134,33 +150,41 @@ class TestingConsole:
             while True:
                 user_answer = input("Your answer: ").strip().lower()
                 if user_answer in [str(i) for i in range(1, 12)]:
+                    user_answer = int(user_answer)
                     break
                 print("Invalid answer. Please enter a number between 1 and 11.")
 
+            chosen_algorithm = algorithm_order[user_answer - 1]
+            chosen_percentage = time_percentages[user_answer - 1]    
+
             if fastest_algorithm == 'Best First Search' and user_answer == '1':
-                print("Correct! The answer is Best First Search.")
+                print("Correct! The answer is Best First Search. ({chosen_percentage:.2f}% of the best time")
             elif fastest_algorithm == 'Depth First Search' and user_answer == '2':
-                print("Correct! The answer is Depth First Search.")
+                print("Correct! The answer is Depth First Search. ({chosen_percentage:.2f}% of the best time")
             elif fastest_algorithm == 'Uniform Cost Search' and user_answer == '3':
-                print("Correct! The answer is Uniform Cost Search.")
+                print("Correct! The answer is Uniform Cost Search. ({chosen_percentage:.2f}% of the best time")
             elif fastest_algorithm == 'Iterative Deepening DFS' and user_answer == '4':
-                print("Correct! The answer is Iterative Deepening DFS.")
+                print("Correct! The answer is Iterative Deepening DFS. ({chosen_percentage:.2f}% of the best time")
             elif fastest_algorithm == 'Backtracking' and user_answer == '5':
-                print("Correct! The answer is Backtracking.")
+                print("Correct! The answer is Backtracking. ({chosen_percentage:.2f}% of the best time")
             elif fastest_algorithm == 'Bidirectional Search' and user_answer == '6':
-                print("Correct! The answer is Bidirectional Search.")
+                print("Correct! The answer is Bidirectional Search. ({chosen_percentage:.2f}% of the best time")
             elif fastest_algorithm == 'Greedy Best First' and user_answer == '7':
-                print("Correct! The answer is Greedy Best First.")
+                print("Correct! The answer is Greedy Best First. ({chosen_percentage:.2f}% of the best time")
             elif fastest_algorithm == 'Hill Climbing' and user_answer == '8':
-                print("Correct! The answer is Hill Climbing.")
+                print("Correct! The answer is Hill Climbing. ({chosen_percentage:.2f}% of the best time")
             elif fastest_algorithm == 'Simulated Annealing' and user_answer == '9':
-                print("Correct! The answer is Simulated Annealing.")
+                print("Correct! The answer is Simulated Annealing. ({chosen_percentage:.2f}% of the best time")
             elif fastest_algorithm == 'Beam Search' and user_answer == '10':
-                print("Correct! The answer is Beam Search.")
+                print("Correct! The answer is Beam Search. ({chosen_percentage:.2f}% of the best time")
             elif fastest_algorithm == 'A*' and user_answer == '11':
                 print("Correct! The answer is A*.")
             else:
                 print(f"Incorrect. The correct answer was: {fastest_algorithm}.")
+                if chosen_percentage is not None:
+                    print(f"Your algorithm ({chosen_algorithm}) took {chosen_percentage:.2f}% of the best time.")
+                else:
+                    print(f"Your algorithm ({chosen_algorithm}) took 0% of the best time.")
 
             #print(f"Fastest Algorithm: {fastest_algorithm} (Time: {fastest_time:.6f}s)")
 
