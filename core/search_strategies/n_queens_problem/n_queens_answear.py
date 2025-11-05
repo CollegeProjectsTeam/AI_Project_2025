@@ -5,6 +5,7 @@ import importlib.util
 class AlgorithmComparator:
     """Compares execution times of all algorithms in the Algorithms folder for a given N-Queens instance."""
 
+
     @staticmethod
     def compare_algorithms(instance):
         """
@@ -22,6 +23,20 @@ class AlgorithmComparator:
         algorithms_path = os.path.join(os.getcwd(), algorithms_folder)
         results = {}
         report_string = ""
+        algorithm_order = [
+            'breadth_first_search',  
+            'depth_first_search',        
+            'uniform_cost_search',           
+            'iterative_deepening_depth_first_search', 
+            'backtracking',        
+            'bidirectional_search',         
+            'greedy_best_first_search',   
+            'hill_climbing',      
+            'simulated_annealing',    
+            'beam_search', 
+            'a_star'     
+        ]
+        time_algorithms = [None] * len(algorithm_order)
 
         for file in os.listdir(algorithms_path):
             if file.endswith(".py") and file != "__init__.py":
@@ -44,9 +59,12 @@ class AlgorithmComparator:
                         # Append to report string for explication
                         message = f"{string_name(algorithm_name)} found a solution in {exec_time:.6f} seconds\n"
                         report_string += message
-
                         #print(f"[answear] Algorithm {string_name(algorithm_name)} found a solution in {exec_time:.6f} seconds.")
                         results[algorithm_name] = (exec_time, solution)
+
+                        if algorithm_name in algorithm_order:
+                            idx = algorithm_order.index(algorithm_name)
+                            time_algorithms[idx] = exec_time
                     else:
                         # Append to report string for explication
                         message = f"{string_name(algorithm_name)} did not find a solution\n"
@@ -64,13 +82,44 @@ class AlgorithmComparator:
         fastest_algorithm = min(results, key=lambda k: results[k][0])
         fastest_time, fastest_solution = results[fastest_algorithm]
 
+        percentages = AlgorithmComparator.calculate_time_percentages(time_algorithms)
+
         return {
             "fastest_algorithm": string_name(fastest_algorithm),
             "execution_time": fastest_time,
             "solution": fastest_solution,
-            "report": report_string
+            "report": report_string,
+            "times_vector": time_algorithms,  
+            "time_percentages": percentages
         }
-    
+    @staticmethod
+    def calculate_time_percentages(time_algorithms):
+        """
+        Calculate the percentage of time each algorithm took relative to the total time.
+
+        Args:
+            time_algorithms (list): list of execution times for each algorithm (may contain None)
+
+        Returns:
+            list: list of percentages (floats), with None where time was missing
+        """
+        valid_times = [t for t in time_algorithms if t is not None]
+
+        if not valid_times:
+            return [None] * len(time_algorithms)
+
+        total_time = sum(valid_times)
+        min_time = min(valid_times)
+
+        percentages = []
+        for t in time_algorithms:
+            if t is None:
+                percentages.append(None)
+            else:
+                percent = (min_time / t) * 100
+                percentages.append(round(percent, 2))
+        return percentages
+
 def string_name (algorithm_name):
     """Converts algorithm internal names to user-friendly names."""
     names = {
