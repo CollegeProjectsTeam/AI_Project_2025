@@ -47,7 +47,6 @@ def heuristic_nqueens_full(solution):
                 conflicts += 1
     return conflicts
 
-
 def solve_nqueens(board):
     n = len(board)
     beam_width = max(4, n // 2)

@@ -30,7 +30,6 @@ def solve_nqueens(board):
     n = len(board)
     initial_state = []
 
-    # identificăm reginele deja plasate
     for row in range(n):
         for col in range(n):
             if board[row][col] == 1:
@@ -44,16 +43,14 @@ def solve_nqueens(board):
     )
     return sol
 
-
 def print_board(solution):
-    """Afișează frumos tabla cu reginele."""
     if not solution:
-        print("❌ Nicio soluție găsită.")
+        print("No solution found.")
         return
     n = len(solution)
     for r in range(n):
         line = ""
         for c in range(n):
-            line += "♛ " if solution[r] == c else "· "
+            line += "1 " if solution[r] == c else "0 "
         print(line)
     print()
