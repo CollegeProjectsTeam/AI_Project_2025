@@ -1,6 +1,5 @@
 def backtrack(solution, is_complete, generate_options, is_valid):
     if is_complete(solution):
-        #print("Solutie gasita:", solution)
         return solution
     for option in generate_options(solution):
         if is_valid(option, solution):
@@ -31,18 +30,30 @@ def solve_nqueens(board):
     n = len(board)
     initial_state = []
 
+    # identificăm reginele deja plasate
     for row in range(n):
         for col in range(n):
-            if board[row][col] == 1:  
+            if board[row][col] == 1:
                 initial_state.append(col)
 
-    #print(f"Stare initiala: {initial_state}")
-
-    return backtrack(
+    sol = backtrack(
         initial_state,
         lambda sol: is_complete_nqueens(sol, n),
         lambda sol: generate_options_nqueens(sol, n),
         is_valid_nqueens
     )
+    return sol
 
-    #print(f"Stare initiala: {solution}")
+
+def print_board(solution):
+    """Afișează frumos tabla cu reginele."""
+    if not solution:
+        print("❌ Nicio soluție găsită.")
+        return
+    n = len(solution)
+    for r in range(n):
+        line = ""
+        for c in range(n):
+            line += "♛ " if solution[r] == c else "· "
+        print(line)
+    print()
