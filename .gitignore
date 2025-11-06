@@ -1,8 +1,8 @@
+# Environment and IDE
 .env
-.idea
-.venv
-../__pycache__/
-*.pyc
-core/search_strategies/n_queens_problem/__pycache__/
-core/search_strategies/n_queens_problem/*.pyc
-core/__pycache__/
+.venv/
+.idea/
+
+# Python cache and compiled files (ignore everywhere)
+**/__pycache__/
+**/*.pyc
