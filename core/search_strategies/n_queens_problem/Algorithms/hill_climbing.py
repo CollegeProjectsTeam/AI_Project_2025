@@ -34,10 +34,11 @@ def is_valid_nqueens(col, solution):
 
 def heuristic_nqueens(solution):
     conflicts = 0
-    row = len(solution) - 1
-    for r, c in enumerate(solution[:-1]):
-        if solution[-1] == c or abs(solution[-1] - c) == abs(row - r):
-            conflicts += 1
+    n = len(solution)
+    for i in range(n):
+        for j in range(i+1, n):
+            if solution[i] == solution[j] or abs(i - j) == abs(solution[i] - solution[j]):
+                conflicts += 1
     return conflicts
 
 
