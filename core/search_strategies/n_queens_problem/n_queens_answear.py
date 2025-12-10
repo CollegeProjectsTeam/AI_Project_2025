@@ -1,127 +1,139 @@
+# core/search_strategies/n_queens_problem/n_queens_answear.py
 import os
 import time
 import importlib.util
 
-class AlgorithmComparator:
-    """Compares execution times of all algorithms in the Algorithms folder for a given N-Queens instance."""
 
+class AlgorithmComparator:
+    """Compares execution times of all algorithms in the Algorithms folder for a given N-Queens board."""
 
     @staticmethod
-    def compare_algorithms(instance):
+    def _get_algorithms_path():
         """
-        Compares all algorithms in the Algorithms folder and returns the fastest one.
-
-        Args:
-            instance (dict): The N-Queens problem instance.
-
-        Returns:
-            dict: A dictionary containing the fastest algorithm, its execution time, and the solution.
-                  If no algorithm provides a solution, returns None.
+        Returnează calea reală către folderul:
+            core/search_strategies/Algorithms
+        indiferent de locul din care rulezi scriptul.
         """
+        # acest fișier = core/search_strategies/n_queens_problem
+        current_dir = os.path.dirname(__file__)
 
-        algorithms_folder = "core/search_strategies/n_queens_problem/Algorithms"
-        algorithms_path = os.path.join(os.getcwd(), algorithms_folder)
+        # urcăm la: core/search_strategies
+        search_strategies_root = os.path.dirname(current_dir)
+
+        # folderul unde sunt toate algoritmurile
+        algorithms_dir = os.path.join(search_strategies_root, "Algorithms")
+
+        if not os.path.exists(algorithms_dir):
+            raise FileNotFoundError(f"[NQueens Comparator] Algorithms folder not found: {algorithms_dir}")
+
+        return algorithms_dir
+
+    @staticmethod
+    def compare_algorithms(board):
+        """
+        rulează toate algoritmurile din folderul Algorithms/ și returnează:
+            - fastest_algorithm
+            - execution_time
+            - solution
+            - report
+            - times_vector
+            - time_percentages
+        """
+        algorithms_path = AlgorithmComparator._get_algorithms_path()
         results = {}
         report_string = ""
+
+        # ordine fixă pentru UI
         algorithm_order = [
-            'breadth_first_search',  
-            'depth_first_search',        
-            'uniform_cost_search',           
-            'iterative_deepening_depth_first_search', 
-            'backtracking',        
-            'bidirectional_search',         
-            'greedy_best_first_search',   
-            'hill_climbing',      
-            'simulated_annealing',    
-            'beam_search', 
-            'a_star'     
+            'breadth_first_search',
+            'depth_first_search',
+            'uniform_cost_search',
+            'iterative_deepening_depth_first_search',
+            'backtracking',
+            'bidirectional_search',
+            'greedy_best_first_search',
+            'hill_climbing',
+            'simulated_annealing',
+            'beam_search',
+            'a_star'
         ]
-        time_algorithms = [None] * len(algorithm_order)
+
+        times_vector = [None] * len(algorithm_order)
 
         for file in os.listdir(algorithms_path):
-            if file.endswith(".py") and file != "__init__.py":
-                algorithm_name = file[:-3]  # Remove .py extension
-                algorithm_module = f"core.search_strategies.n_queens_problem.Algorithms.{algorithm_name}"
-                
-                # Dynamically import the algorithm
-                spec = importlib.util.spec_from_file_location(algorithm_name, os.path.join(algorithms_path, file))
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
+            if not file.endswith(".py") or file == "__init__.py":
+                continue
 
-                # Measure execution time
-                start_time = time.time()
-                try:
-                    #print(f"Running algorithm: {algorithm_name}")
-                    solution = module.solve_nqueens(instance)
-                    exec_time = time.time() - start_time
-                    # Validate the solution
-                    if solution:
-                        # Append to report string for explication
-                        message = f"{string_name(algorithm_name)} found a solution in {exec_time:.6f} seconds\n"
-                        report_string += message
-                        #print(f"[answear] Algorithm {string_name(algorithm_name)} found a solution in {exec_time:.6f} seconds.")
-                        results[algorithm_name] = (exec_time, solution)
+            algorithm_name = file[:-3]
+            filepath = os.path.join(algorithms_path, file)
 
-                        if algorithm_name in algorithm_order:
-                            idx = algorithm_order.index(algorithm_name)
-                            time_algorithms[idx] = exec_time
-                    else:
-                        # Append to report string for explication
-                        message = f"{string_name(algorithm_name)} did not find a solution\n"
-                        report_string += message
+            # import dynamic
+            spec = importlib.util.spec_from_file_location(algorithm_name, filepath)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
 
-                        #print(f"Algorithm {string_name(algorithm_name)} did not return a valid solution.")
-                except Exception as e:
-                    print(f"Error running {string_name(algorithm_name)}: {e}")
-    
+            solve_fn = getattr(module, "solve_nqueens", None)
+            if not solve_fn:
+                continue
+
+            # măsurăm timpul
+            start = time.time()
+            try:
+                solution = solve_fn(board)
+                exec_time = time.time() - start
+
+                if solution:
+                    # append la raport
+                    report_string += f"{string_name(algorithm_name)} found a solution in {exec_time:.6f}s\n"
+                    results[algorithm_name] = (exec_time, solution)
+
+                    if algorithm_name in algorithm_order:
+                        idx = algorithm_order.index(algorithm_name)
+                        times_vector[idx] = exec_time
+                else:
+                    report_string += f"{string_name(algorithm_name)} did not find a solution\n"
+
+            except Exception as e:
+                report_string += f"{string_name(algorithm_name)} ERROR: {e}\n"
+
         if not results:
-            #print("No algorithms provided a valid solution.")
-            return None, report_string
-        
-        # Determine the fastest algorithm
+            return None
+
+        # cel mai rapid
         fastest_algorithm = min(results, key=lambda k: results[k][0])
         fastest_time, fastest_solution = results[fastest_algorithm]
 
-        percentages = AlgorithmComparator.calculate_time_percentages(time_algorithms)
+        percentages = AlgorithmComparator.calculate_time_percentages(times_vector)
 
         return {
             "fastest_algorithm": string_name(fastest_algorithm),
             "execution_time": fastest_time,
             "solution": fastest_solution,
             "report": report_string,
-            "times_vector": time_algorithms,  
+            "times_vector": times_vector,
             "time_percentages": percentages
         }
+
     @staticmethod
-    def calculate_time_percentages(time_algorithms):
-        """
-        Calculate the percentage of time each algorithm took relative to the total time.
+    def calculate_time_percentages(times_vector):
+        valid = [t for t in times_vector if t is not None]
 
-        Args:
-            time_algorithms (list): list of execution times for each algorithm (may contain None)
+        if not valid:
+            return [None] * len(times_vector)
 
-        Returns:
-            list: list of percentages (floats), with None where time was missing
-        """
-        valid_times = [t for t in time_algorithms if t is not None]
+        fastest = min(valid)
 
-        if not valid_times:
-            return [None] * len(time_algorithms)
-
-        total_time = sum(valid_times)
-        min_time = min(valid_times)
-
-        percentages = []
-        for t in time_algorithms:
+        out = []
+        for t in times_vector:
             if t is None:
-                percentages.append(None)
+                out.append(None)
             else:
-                percent = (min_time / t) * 100
-                percentages.append(round(percent, 2))
-        return percentages
+                out.append(round((fastest / t) * 100, 2))
+        return out
 
-def string_name (algorithm_name):
-    """Converts algorithm internal names to user-friendly names."""
+
+def string_name(algorithm_name):
+    """Converts algorithm internal names to readable names."""
     names = {
         'breadth_first_search': 'Best First Search',
         'depth_first_search': 'Depth First Search',
