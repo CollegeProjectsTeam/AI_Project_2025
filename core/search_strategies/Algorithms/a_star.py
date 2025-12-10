@@ -19,6 +19,7 @@ def a_star(initial_state, is_complete, generate_options, is_valid, g_cost, h_cos
                 heapq.heappush(queue, (new_g + h_cost(new_state), new_g, new_state))
     return None
 
+#n-queens
 
 def is_complete_nqueens(solution, n):
     return len(solution) == n
@@ -67,4 +68,50 @@ def solve_nqueens(board):
         is_valid_nqueens,
         g_cost_nqueens,
         h_cost_nqueens
+    )
+
+
+# graph_coloring
+def is_complete_graphcoloring(solution, n):
+    return len(solution) == n
+
+
+def generate_options_graphcoloring(solution, num_colors):
+    return list(range(num_colors))
+
+
+def is_valid_graphcoloring(color, solution, adjacency_matrix, vertex_index):
+    v = vertex_index
+    for u, cu in enumerate(solution):
+        if adjacency_matrix[v][u] == 1 and cu == color:
+            return False
+    return True
+
+
+def g_cost_graphcoloring(color, solution):
+    return 1
+
+
+def h_cost_graphcoloring(solution, adjacency_matrix):
+    conflicts = 0
+    for i in range(len(solution)):
+        for j in range(i + 1, len(solution)):
+            if adjacency_matrix[i][j] == 1 and solution[i] == solution[j]:
+                conflicts += 1
+    return conflicts
+
+def solve_graph_coloring(instance: dict):
+    n = instance["num_vertices"]
+    k = instance["num_colors"]
+    adjacency_matrix = instance["adjacency_matrix"]
+
+    initial_state = []
+
+    return a_star(
+        initial_state,
+        lambda sol: is_complete_graphcoloring(sol, n),
+        lambda sol: generate_options_graphcoloring(sol, k),
+        lambda color, sol: is_valid_graphcoloring(color, sol, adjacency_matrix, len(sol)),
+        g_cost_graphcoloring,
+        lambda sol: h_cost_graphcoloring(sol, adjacency_matrix)
     )
