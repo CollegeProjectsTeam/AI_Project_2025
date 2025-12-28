@@ -1,0 +1,1 @@
+from .catalog_service import get_catalog
