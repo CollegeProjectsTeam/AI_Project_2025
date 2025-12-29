@@ -10,6 +10,8 @@ export const dom = {
   btnGenerate: document.getElementById("btnGenerate"),
   questionText: document.getElementById("questionText"),
 
+  treePanel: document.getElementById("treePanel"),
+
   out: document.getElementById("out"),
   jsonPanel: document.getElementById("jsonPanel"),
   btnToggleJson: document.getElementById("btnToggleJson"),

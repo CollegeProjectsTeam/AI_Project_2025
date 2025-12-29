@@ -11,8 +11,16 @@ export function unlockExplainSection({ dom }) {
 function formatExplanation(data) {
   if (!data || typeof data !== "object") return "No explanation available.";
 
+  if (typeof data.explanation === "string" && data.explanation.trim()) {
+    return data.explanation.trim();
+  }
+
   if (Array.isArray(data.explanation_lines) && data.explanation_lines.length) {
     return data.explanation_lines.join("\n");
+  }
+
+  if (typeof data.explanation_lines === "string" && data.explanation_lines.trim()) {
+    return data.explanation_lines.trim();
   }
 
   if ("hits" in data || "missing" in data || "wrong" in data) {

@@ -64,3 +64,103 @@
   overflow-wrap: anywhere;
   word-break: break-word;
 }
+
+#treePanel {
+  margin-top: 10px;
+}
+
+.treePanel.hidden {
+  display: none;
+}
+
+.treeWrap {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  overflow: auto;
+  max-height: 260px;
+}
+
+.treeTitle {
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.tvSubtree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transform: scale(0.99);
+  transform-origin: top left;
+}
+
+.tvBox {
+  display: inline-block;
+  padding: 5px 8px;
+  border-radius: 9px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.1;
+  min-width: 34px;
+  text-align: center;
+}
+
+.tvMax {
+  outline: 1px solid rgba(120, 220, 255, 0.25);
+}
+
+.tvMin {
+  outline: 1px solid rgba(255, 160, 120, 0.25);
+}
+
+.tvLeaf {
+  outline: 1px solid rgba(140, 255, 160, 0.18);
+}
+
+.tvDown {
+  width: 2px;
+  height: 12px;
+  background: rgba(255,255,255,0.12);
+}
+
+.tvChildrenWrap {
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tvH {
+  height: 2px;
+  width: 100%;
+  background: rgba(255,255,255,0.12);
+  margin-bottom: 12px;
+}
+
+.tvRow {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  align-items: flex-start;
+  position: relative;
+}
+
+.tvChild {
+  position: relative;
+}
+
+.tvChild::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 12px;
+  background: rgba(255,255,255,0.12);
+}

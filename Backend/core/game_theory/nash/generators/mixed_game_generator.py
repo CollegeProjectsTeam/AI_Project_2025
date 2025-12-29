@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 from Backend.services.logging_service import Logger
-from Backend.core.game_theory.nash.NashPureSolver import NashPureSolver
-from Backend.core.game_theory.nash.NashMixedSolver import NashMixedSolver
+from Backend.core.game_theory.nash.nash_pure_solver import NashPureSolver
+from Backend.core.game_theory.nash.nash_mixed_solver import NashMixedSolver
 from Backend.core.game_theory.nash.generators.base_generator import NashBaseGenerator
 
 log = Logger("NashMixedGameGenerator")

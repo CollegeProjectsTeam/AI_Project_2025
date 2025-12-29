@@ -72,6 +72,10 @@ DECLARE
 
     nash_combined_sub_id INT;
     nash_combined_template_id INT;
+
+        -- MinMax
+    minimax_sub_id INT;
+    minimax_template_id INT;
 BEGIN
     ------------------------------------------------------
     -- CHAPTER 1 – Search Strategies
@@ -216,5 +220,26 @@ BEGIN
 
     INSERT INTO template_variables (template_id, variable_name, data_type)
     VALUES (nash_combined_template_id, 'instance', 'JSON');
+
+        ------------------------------------------------------
+    -- Subchapter 4 – MinMax (Alpha-Beta)
+    ------------------------------------------------------
+    INSERT INTO subchapters (chapter_id, subchapter_number, subchapter_name)
+    VALUES (chapter_id2, 4, 'MinMax (Alpha-Beta)')
+    RETURNING id INTO minimax_sub_id;
+
+    ------------------------------------------------------
+    -- Template for MinMax (Alpha-Beta) (medium)
+    ------------------------------------------------------
+    INSERT INTO question_templates (chapter_id, subchapter_id, template_text, difficulty)
+    VALUES (
+        chapter_id2,
+        minimax_sub_id,
+        'Pentru arborele dat, care va fi valoarea din radacina si cate noduri frunze vor fi vizitate in cazul aplicarii strategiei MinMax cu optimizarea Alpha-Beta? Instanta: {instance}',
+        'medium'
+    ) RETURNING id INTO minimax_template_id;
+
+    INSERT INTO template_variables (template_id, variable_name, data_type)
+    VALUES (minimax_template_id, 'instance', 'JSON');
 
 END $$;

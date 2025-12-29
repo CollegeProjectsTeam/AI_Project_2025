@@ -5,11 +5,19 @@ import { setLoading, showError, clearError, clearResult } from "./view.js";
 import { renderAnswerOptions } from "./answer_options.js";
 import { lockJsonSection } from "./json_section.js";
 import { lockExplainSection } from "./explain_section.js";
+import { renderGameTree } from "./tree_view.js";
 
 export function initGenerateSection({ dom, state, catalogApi }) {
+  function clearTree() {
+    if (!dom.treePanel) return;
+    dom.treePanel.innerHTML = "";
+    dom.treePanel.classList.add("hidden");
+  }
+
   async function onGenerate() {
     clearError(dom);
     clearResult(dom);
+    clearTree();
 
     const sel = catalogApi.getSelection();
     if (!sel) {
@@ -41,6 +49,7 @@ export function initGenerateSection({ dom, state, catalogApi }) {
         lockJsonSection({ dom });
 
         if (dom.answerOptionsWrap) dom.answerOptionsWrap.classList.add("hidden");
+        clearTree();
         return;
       }
 
@@ -61,10 +70,18 @@ export function initGenerateSection({ dom, state, catalogApi }) {
       lockExplainSection({ dom });
       lockJsonSection({ dom });
 
-      renderAnswerOptions(dom, q?.meta || {});
+      const meta = q?.meta || {};
+      renderAnswerOptions(dom, meta);
+
+      if (meta.type === "minmax") {
+        renderGameTree(dom.treePanel, meta.tree, meta.root_player);
+      } else {
+        clearTree();
+      }
     } catch (e) {
       console.error("Generate crashed:", e);
       showError(dom, "Request failed");
+      clearTree();
     } finally {
       setLoading(dom, false);
     }

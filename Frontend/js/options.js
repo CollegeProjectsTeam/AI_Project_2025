@@ -58,6 +58,35 @@ export function renderOptions(root, selection) {
     return;
   }
 
+
+    if (ch === 2 && sc === 4) {
+    root.innerHTML = `
+      <div class="optBox">
+        <div class="optTitle">MinMax (Alpha-Beta)</div>
+
+        <div class="row rowTight">
+          <label class="field">
+            Depth
+            <input id="optMinMaxDepth" type="number" min="1" max="6" value="3" />
+          </label>
+          <label class="field">
+            Branching
+            <input id="optMinMaxBranching" type="number" min="2" max="4" value="2" />
+          </label>
+        </div>
+
+        <label class="field">
+          Root player
+          <select id="optMinMaxRootPlayer" class="select">
+            <option value="MAX">MAX</option>
+            <option value="MIN">MIN</option>
+          </select>
+        </label>
+      </div>
+    `;
+    return;
+  }
+
   root.innerHTML = `<div class="mutedSmall">No options available for this subchapter yet.</div>`;
 }
 
@@ -81,6 +110,13 @@ export function collectOptions(selection) {
   if (ch === 2 && (sc === 2 || sc === 3)) {
     const size = Number(document.getElementById("optNashSize")?.value || 2);
     return { size };
+  }
+
+    if (ch === 2 && sc === 4) {
+    const depth = Number(document.getElementById("optMinMaxDepth")?.value || 3);
+    const branching = Number(document.getElementById("optMinMaxBranching")?.value || 2);
+    const root_player = String(document.getElementById("optMinMaxRootPlayer")?.value || "MAX");
+    return { depth, branching, root_player };
   }
 
   return {};
