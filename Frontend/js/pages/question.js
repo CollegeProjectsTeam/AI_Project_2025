@@ -21,6 +21,9 @@ const elAnswer = document.getElementById("answer");
 const elBtnCheck = document.getElementById("btnCheck");
 const elCheckResult = document.getElementById("checkResult");
 
+let elAnswerOptionsWrap = document.getElementById("answerOptionsWrap");
+let elAnswerOptions = document.getElementById("answerOptions");
+
 let catalog = { chapters: [] };
 let expanded = true;
 let currentQuestionId = null;
@@ -60,6 +63,61 @@ function setResult(msg, ok) {
   setHidden(elCheckResult, false);
 }
 
+function ensureAnswerOptionsUI() {
+  if (elAnswerOptionsWrap && elAnswerOptions) return;
+
+  elAnswerOptionsWrap = document.createElement("div");
+  elAnswerOptionsWrap.id = "answerOptionsWrap";
+  elAnswerOptionsWrap.className = "hidden";
+
+  const divider = document.createElement("div");
+  divider.className = "divider";
+
+  const title = document.createElement("h2");
+  title.className = "sectionTitle";
+  title.textContent = "Answer options";
+
+  elAnswerOptions = document.createElement("div");
+  elAnswerOptions.id = "answerOptions";
+  elAnswerOptions.className = "chips";
+
+  elAnswerOptionsWrap.appendChild(divider);
+  elAnswerOptionsWrap.appendChild(title);
+  elAnswerOptionsWrap.appendChild(elAnswerOptions);
+
+  elQuestionText.parentElement.insertBefore(elAnswerOptionsWrap, elQuestionText.nextSibling);
+}
+
+function renderAnswerOptions(meta) {
+  ensureAnswerOptionsUI();
+
+  elAnswerOptions.innerHTML = "";
+  setHidden(elAnswerOptionsWrap, true);
+
+  const labels = meta?.answer_options;
+  const keys = meta?.answer_option_keys;
+
+  if (!Array.isArray(labels) || !Array.isArray(keys) || labels.length !== keys.length || labels.length === 0) {
+    return;
+  }
+
+  setHidden(elAnswerOptionsWrap, false);
+
+  labels.forEach((label, i) => {
+    const key = keys[i];
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "chip";
+    btn.textContent = `${i + 1}. ${label}`;
+    btn.title = key;
+    btn.addEventListener("click", () => {
+      elAnswer.value = key;
+      elAnswer.focus();
+    });
+    elAnswerOptions.appendChild(btn);
+  });
+}
+
 async function onGenerate() {
   setError(elErr, "");
   setResult("", true);
@@ -88,14 +146,19 @@ async function onGenerate() {
       elQuestionText.textContent = "";
       currentQuestionId = null;
       elBtnCheck.disabled = true;
+      ensureAnswerOptionsUI();
+      setHidden(elAnswerOptionsWrap, true);
       return;
     }
 
     const q = res.data?.question;
     currentQuestionId = q?.question_id || null;
+
     elQuestionText.textContent = q?.question_text || "";
     elBtnCheck.disabled = !currentQuestionId;
     elAnswer.value = "";
+
+    renderAnswerOptions(q?.meta || {});
   } catch {
     setError(elErr, "Request failed");
   } finally {
@@ -169,6 +232,8 @@ elClear.addEventListener("click", () => {
   elBtnCheck.disabled = true;
   elAnswer.value = "";
   setResult("", true);
+  ensureAnswerOptionsUI();
+  setHidden(elAnswerOptionsWrap, true);
   syncUI();
 });
 

@@ -1,5 +1,6 @@
 import itertools
 
+
 class NashMixedSolver:
     @staticmethod
     def _solve_square(A, b, tol=1e-12):
@@ -59,21 +60,21 @@ class NashMixedSolver:
     def solve(payoffs, tol: float = 1e-9):
         m = len(payoffs)
         n = len(payoffs[0]) if m else 0
-        if m != n or m not in (2, 3):
+        if m == 0 or n == 0:
             return None
 
-        strategies = list(range(m))
+        strategies1 = list(range(m))
+        strategies2 = list(range(n))
+        kmax = min(m, n)
 
-        for k in range(2, m + 1):
-            for S1 in itertools.combinations(strategies, k):
-                for S2 in itertools.combinations(strategies, k):
+        for k in range(1, kmax + 1):
+            for S1 in itertools.combinations(strategies1, k):
+                for S2 in itertools.combinations(strategies2, k):
                     i0 = S1[0]
                     j0 = S2[0]
 
-                    A_q = []
-                    b_q = []
-                    A_q.append([1.0 for _ in S2])
-                    b_q.append(1.0)
+                    A_q = [[1.0] * k]
+                    b_q = [1.0]
                     for ii in S1[1:]:
                         A_q.append([float(payoffs[ii][jj][0]) - float(payoffs[i0][jj][0]) for jj in S2])
                         b_q.append(0.0)
@@ -81,22 +82,16 @@ class NashMixedSolver:
                     q_s = NashMixedSolver._solve_square(A_q, b_q)
                     if q_s is None:
                         continue
-
                     if any(x < -tol for x in q_s):
                         continue
-                    sq = sum(q_s)
-                    if abs(sq - 1.0) > 1e-6:
-                        continue
-                    q_s = [max(0.0, x) for x in q_s]
+                    q_s = [0.0 if x < 0.0 else float(x) for x in q_s]
                     sq = sum(q_s)
                     if sq <= tol:
                         continue
                     q_s = [x / sq for x in q_s]
 
-                    A_p = []
-                    b_p = []
-                    A_p.append([1.0 for _ in S1])
-                    b_p.append(1.0)
+                    A_p = [[1.0] * k]
+                    b_p = [1.0]
                     for jj in S2[1:]:
                         A_p.append([float(payoffs[ii][jj][1]) - float(payoffs[ii][j0][1]) for ii in S1])
                         b_p.append(0.0)
@@ -104,13 +99,9 @@ class NashMixedSolver:
                     p_s = NashMixedSolver._solve_square(A_p, b_p)
                     if p_s is None:
                         continue
-
                     if any(x < -tol for x in p_s):
                         continue
-                    sp = sum(p_s)
-                    if abs(sp - 1.0) > 1e-6:
-                        continue
-                    p_s = [max(0.0, x) for x in p_s]
+                    p_s = [0.0 if x < 0.0 else float(x) for x in p_s]
                     sp = sum(p_s)
                     if sp <= tol:
                         continue
@@ -141,6 +132,7 @@ class NashMixedSolver:
                             if eu1[ii] > v1 + 1e-6:
                                 ok = False
                                 break
+
                     if ok:
                         for jj in S2:
                             if abs(eu2[jj] - v2) > 1e-5:
@@ -153,11 +145,12 @@ class NashMixedSolver:
                             if eu2[jj] > v2 + 1e-6:
                                 ok = False
                                 break
+
                     if not ok:
                         continue
 
                     return {
-                        "type": f"{m}x{n}_mixed",
+                        "type": f"{m}x{n}",
                         "p": p,
                         "q": q,
                         "support_p1": list(S1),
