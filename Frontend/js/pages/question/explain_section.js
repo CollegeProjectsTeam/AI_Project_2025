@@ -11,9 +11,14 @@ export function unlockExplainSection({ dom }) {
 function formatExplanation(data) {
   if (!data || typeof data !== "object") return "No explanation available.";
 
+  if (Array.isArray(data.explanation_lines) && data.explanation_lines.length) {
+    return data.explanation_lines.join("\n");
+  }
+
   if ("hits" in data || "missing" in data || "wrong" in data) {
     const lines = [];
-    if (typeof data.correct === "boolean") lines.push(`Correct: ${data.correct ? "Yes" : "No"}`);
+    if (typeof data.correct === "boolean")
+      lines.push(`Correct: ${data.correct ? "Yes" : "No"}`);
     if ("score" in data) lines.push(`Score: ${data.score}`);
     if ("hits" in data) lines.push(`Hits: ${data.hits}`);
     if ("missing" in data) lines.push(`Missing: ${data.missing}`);
@@ -21,17 +26,11 @@ function formatExplanation(data) {
     return lines.join("\n");
   }
 
-  if (data.type === "nqueens" || data.problem_name === "N-Queens") {
-    const lines = [];
-    if (typeof data.correct === "boolean") lines.push(`Correct: ${data.correct ? "Yes" : "No"}`);
-    if ("score" in data) lines.push(`Score: ${data.score}`);
-    if (data.fastest_algorithm) lines.push(`Fastest algorithm: ${data.fastest_algorithm}`);
-    if (data.execution_times) lines.push(`Timing details available in Raw JSON.`);
-    return lines.length ? lines.join("\n") : "N-Queens explanation is available in Raw JSON.";
+  if (typeof data.message === "string" && data.message.trim()) {
+    return data.message.trim();
   }
 
-  const keys = Object.keys(data).slice(0, 12);
-  return keys.map((k) => `${k}: ${String(data[k])}`).join("\n");
+  return "No explanation available.";
 }
 
 export function renderExplanation({ dom, data }) {

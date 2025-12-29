@@ -15,8 +15,10 @@ from Backend.core.search_strategies.n_queens_problem.n_queens_answear import (
 from Backend.core.game_theory.NashInstanceGenerator import NashInstanceGenerator
 from Backend.core.game_theory.NashPureSolver import NashPureSolver
 from Backend.persistence.services.question_template_service import get_template_text
+from Backend.services import Logger
 
 qgen = QuestionGenerator()
+log = Logger("QuestionService")
 
 
 def _clamp_int(v: Any, lo: int, hi: int, default: int) -> int:
@@ -81,6 +83,9 @@ def generate_question(payload: Dict[str, Any]) -> Dict[str, Any]:
     if not template_text:
         return {"ok": False, "error": "no template found for this chapter/subchapter"}
 
+    # =========================
+    # N-Queens (1,1)
+    # =========================
     if (ch_num, sub_num) == (1, 1):
         n = _clamp_int(options.get("n"), 4, 12, 4)
 
@@ -95,14 +100,36 @@ def generate_question(payload: Dict[str, Any]) -> Dict[str, Any]:
         algo_labels = [string_name(k) for k in algo_keys]
 
         correct = comp["fastest_algorithm_key"]
+
+        # NEW: store comparison details for explanation on /check
         meta = {
             "type": "nqueens",
             "n": n,
             "answer_option_keys": algo_keys,
             "answer_options": algo_labels,
+
+            # old fields (keep if FE uses them)
             "choices": comp.get("times_vector"),
             "percentages": comp.get("time_percentages"),
+
+            # new explanation payload
+            "nqueens_comparison": {
+                "fastest_algorithm_key": comp.get("fastest_algorithm_key"),
+                "fastest_algorithm": comp.get("fastest_algorithm"),
+                "fastest_time_s": round(float(comp.get("execution_time") or 0.0), 6),
+                "sorted_by": "time_desc",
+                "timings": comp.get("timings") or [],
+            },
         }
+
+        log.info(
+            "NQueens question generated",
+            ctx={
+                "n": n,
+                "correct": correct,
+                "timings_count": len(meta["nqueens_comparison"]["timings"]),
+            },
+        )
 
         qa = store.put(ch_num, sub_num, question_text, correct, meta)
         return {
@@ -121,6 +148,9 @@ def generate_question(payload: Dict[str, Any]) -> Dict[str, Any]:
             },
         }
 
+    # =========================
+    # Nash Pure (2,1)
+    # =========================
     if (ch_num, sub_num) == (2, 1):
         m = _clamp_int(options.get("m"), 2, 5, 2)
         n = _clamp_int(options.get("n"), 2, 5, 2)
@@ -147,6 +177,9 @@ def generate_question(payload: Dict[str, Any]) -> Dict[str, Any]:
             },
         }
 
+    # =========================
+    # Nash Mixed (2,2)
+    # =========================
     if (ch_num, sub_num) == (2, 2):
         size = _clamp_int(options.get("size"), 2, 3, 2)
 
@@ -181,6 +214,9 @@ def generate_question(payload: Dict[str, Any]) -> Dict[str, Any]:
             },
         }
 
+    # =========================
+    # Nash Combined (2,3)
+    # =========================
     if (ch_num, sub_num) == (2, 3):
         size = _clamp_int(options.get("size"), 2, 3, 2)
 
