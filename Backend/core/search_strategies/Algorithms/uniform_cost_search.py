@@ -1,17 +1,45 @@
-import heapq
+# uniform_cost_search.py
+from __future__ import annotations
 
-def uniform_cost_search(initial_state, is_complete, generate_options, is_valid, cost_function):
-    queue = [(0, initial_state)]
+import heapq
+import time
+from typing import Callable, List, Optional, Tuple
+
+from Backend.services import Logger
+
+log = Logger("Algo:UCS")
+
+
+def uniform_cost_search(
+    initial_state: List[int],
+    is_complete: Callable[[List[int]], bool],
+    generate_options: Callable[[List[int]], List[int]],
+    is_valid: Callable[[int, List[int]], bool],
+    cost_function: Callable[[int, List[int]], int],
+) -> Optional[List[int]]:
+    queue: List[Tuple[int, List[int]]] = [(0, initial_state)]
+    pops = 0
+    pushes = 1
+
     while queue:
         cost, state = heapq.heappop(queue)
+        pops += 1
+
         if is_complete(state):
-            #print("Solutie gasita:", state, "cu cost:", cost)
+            log.ok(
+                "UCS solution found",
+                ctx={"pops": pops, "pushes": pushes, "cost": cost, "len": len(state)},
+            )
             return state
+
         for option in generate_options(state):
             if is_valid(option, state):
                 new_state = state + [option]
                 new_cost = cost + cost_function(option, state)
                 heapq.heappush(queue, (new_cost, new_state))
+                pushes += 1
+
+    log.warn("UCS finished without solution", ctx={"pops": pops, "pushes": pushes})
     return None
 
 
@@ -44,10 +72,21 @@ def solve_nqueens(board):
             if board[row][col] == 1:
                 initial_state.append(col)
 
-    return uniform_cost_search(
+    log.info("solve_nqueens start", ctx={"n": n, "preset_queens": len(initial_state)})
+
+    start = time.perf_counter()
+    sol = uniform_cost_search(
         initial_state,
-        lambda sol: is_complete_nqueens(sol, n),
-        lambda sol: generate_options_nqueens(sol, n),
+        lambda s: is_complete_nqueens(s, n),
+        lambda s: generate_options_nqueens(s, n),
         is_valid_nqueens,
-        cost_function_nqueens
+        cost_function_nqueens,
     )
+    dt_ms = (time.perf_counter() - start) * 1000
+
+    if sol is not None:
+        log.ok("solve_nqueens solved", ctx={"n": n, "time_ms": round(dt_ms, 3), "len": len(sol)})
+    else:
+        log.warn("solve_nqueens no solution", ctx={"n": n, "time_ms": round(dt_ms, 3)})
+
+    return sol

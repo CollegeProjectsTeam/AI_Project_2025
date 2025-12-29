@@ -1,0 +1,33 @@
+<section class="card">
+  <div class="row rowTight">
+    <h2 class="sectionTitle">Question</h2>
+    <div class="grow"></div>
+    <button id="btnExplain" class="btn" disabled>Explain</button>
+    <button id="btnToggleJson" class="btn" disabled>Raw JSON</button>
+  </div>
+
+  <pre id="questionText" class="questionBox"></pre>
+
+  <div id="answerOptionsWrap" class="hidden">
+    <div class="divider"></div>
+    <h2 class="sectionTitle">Answer options</h2>
+    <div id="answerOptions" class="chips"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="row rowTight">
+    <label class="field grow">
+      Your answer
+      <input id="answer" type="text" placeholder="Type your answer here..." />
+    </label>
+    <button id="btnCheck" class="btn" disabled>Check</button>
+  </div>
+
+  <div id="checkResult" class="resultBox hidden"></div>
+
+  <div class="divider"></div>
+
+  {% include "partials/question/explain_panel.html" %}
+  {% include "partials/question/json_panel.html" %}
+</section>

@@ -1,0 +1,64 @@
+/* 05-forms-buttons.css */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: .95rem;
+  min-width: 200px;
+}
+
+input[type="number"], input[type="text"], select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #243042;
+  background: #0b1220;
+  color: #e5e7eb;
+  font-size: 1rem;
+  outline: none;
+}
+
+input:focus { border-color: #3b82f6; }
+
+.btn {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #243042;
+  background: #0b1220;
+  color: #e5e7eb;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.btn:hover:not(:disabled) { border-color: #9ca3af; }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+
+.btn.primary { border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+.btn.primary:hover:not(:disabled) { background: rgba(59, 130, 246, 0.2); }
+
+.btn.danger { border-color: #ef4444; color: #fca5a5; }
+.btn.danger:hover:not(:disabled) { background: rgba(239, 68, 68, 0.1); }
+
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.spinner {
+  display: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(229,231,235,0.35);
+  border-top-color: #e5e7eb;
+  margin-left: 8px;
+}
+
+.btn:disabled .spinner { display: inline-block; animation: spin .7s linear infinite; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* select helper */
+.select { width: 100%; }

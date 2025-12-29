@@ -1,63 +1,86 @@
-import psycopg2
-from psycopg2 import pool
+from __future__ import annotations
 
 import os
+from typing import Any, Iterable, Optional
+
+from psycopg2.pool import SimpleConnectionPool
 from dotenv import load_dotenv
 
-# Get the directory of the project root (relative to this file)
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+from Backend.services.logging_service import Logger
 
-# Build full path to .env
-env_path = os.path.join(project_root, '.env')
 
-# Load .env
-load_dotenv(dotenv_path=env_path)
+log = Logger("Database")
+
+_project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+_env_path = os.path.join(_project_root, ".env")
+load_dotenv(dotenv_path=_env_path)
+
 
 class Database:
-    def __init__(self):
+    def __init__(self, minconn: int = 1, maxconn: int = 10):
         self.db_params = {
             "host": os.getenv("HOST"),
             "port": os.getenv("PORT"),
-            "database": os.getenv("DATABASE_NAME"),
+            "dbname": os.getenv("DATABASE_NAME"),
             "user": os.getenv("USER"),
             "password": os.getenv("PASSWORD"),
         }
 
+        missing = [k for k, v in self.db_params.items() if not str(v or "").strip()]
+        if missing:
+            log.error("Missing database env vars", {"missing": missing, "env_path": _env_path})
+            raise RuntimeError(f"Missing database env vars: {', '.join(missing)}")
+
         try:
-            self.connection_pool = psycopg2.pool.SimpleConnectionPool(
-                1, 10, **self.db_params
-            )
-            if self.connection_pool:
-                print("Database connection pool created successfully")
+            self.pool: SimpleConnectionPool = SimpleConnectionPool(minconn, maxconn, **self.db_params)
+            log.ok("Database connection pool created", {"min": minconn, "max": maxconn, "host": self.db_params["host"]})
         except Exception as e:
-            print(f"Error creating connection pool: {e}")
+            log.error("Error creating connection pool", {"host": self.db_params.get("host")}, exc=e)
+            raise
 
     def get_conn(self):
-        """Get a connection from the pool"""
-        return self.connection_pool.getconn()
-
-    def put_conn(self, conn):
-        """Return a connection to the pool"""
-        self.connection_pool.putconn(conn)
-
-    def execute_query(self, query, params=None, fetch=False):
-        """Execute SQL safely (insert, select, update, delete)"""
-        conn = self.get_conn()
-        cursor = conn.cursor()
         try:
-            cursor.execute(query, params)
-            if fetch:
-                result = cursor.fetchall()
-            else:
-                result = None
+            return self.pool.getconn()
+        except Exception as e:
+            log.error("Failed to get connection from pool", exc=e)
+            raise
+
+    def put_conn(self, conn) -> None:
+        try:
+            if conn is not None:
+                self.pool.putconn(conn)
+        except Exception as e:
+            log.error("Failed to return connection to pool", exc=e)
+
+    def close_all(self) -> None:
+        try:
+            self.pool.closeall()
+            log.warn("Database pool closed")
+        except Exception as e:
+            log.error("Failed to close pool", exc=e)
+
+    def execute(
+        self,
+        query: str,
+        params: Optional[Iterable[Any]] = None,
+        fetch: bool = False,
+    ):
+        conn = self.get_conn()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(query, params)
+                result = cur.fetchall() if fetch else None
             conn.commit()
             return result
         except Exception as e:
-            conn.rollback()
-            print(f" Query error: {e}")
+            try:
+                conn.rollback()
+            except Exception as rb:
+                log.error("Rollback failed", exc=rb)
+            log.error("Query failed", {"query": query[:220], "has_params": params is not None, "fetch": fetch}, exc=e)
+            raise
         finally:
-            cursor.close()
             self.put_conn(conn)
 
-# Singleton instance
+
 db = Database()

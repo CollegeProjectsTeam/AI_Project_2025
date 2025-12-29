@@ -1,8 +1,14 @@
+from __future__ import annotations
+
+import re
 from typing import Any, Dict
 
 from Backend.config.runtime_store import store
 from Backend.core.nash_utils import parse_nash_answer, evaluate_nash_answer, format_eq_list
-from Backend.core.search_strategies.n_queens_problem.n_queens_answear import AlgorithmComparator, string_name
+from Backend.core.search_strategies.n_queens_problem.n_queens_answear import (
+    AlgorithmComparator,
+    string_name,
+)
 
 
 def _norm(s: str) -> str:
@@ -28,6 +34,25 @@ def _nq_user_to_key(ans: Any) -> str | None:
 
     label_map = {string_name(k).strip().lower(): k for k in keys}
     return label_map.get(user)
+
+
+def _parse_floats(s: str) -> list[float]:
+    return [float(x) for x in re.findall(r"[-+]?\d*\.?\d+", s or "")]
+
+
+def _norm_prob_vec(v: list[float]) -> list[float] | None:
+    if not v:
+        return None
+    s = sum(v)
+    if s <= 0:
+        return None
+    return [x / s for x in v]
+
+
+def _vec_close(a: list[float] | None, b: list[float] | None, tol: float) -> bool:
+    if a is None or b is None or len(a) != len(b):
+        return False
+    return all(abs(a[i] - b[i]) <= tol for i in range(len(a)))
 
 
 def evaluate_answer(payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -64,7 +89,7 @@ def evaluate_answer(payload: Dict[str, Any]) -> Dict[str, Any]:
 
         correct_eqs = []
         corr = (item.correct_answer or "").strip().lower()
-        if corr != "none" and corr != "":
+        if corr not in ("none", ""):
             parts = corr.replace(" ", "").split("),")
             for p in parts:
                 p = p.replace("(", "").replace(")", "").strip()
@@ -84,6 +109,102 @@ def evaluate_answer(payload: Dict[str, Any]) -> Dict[str, Any]:
             "hits": format_eq_list(hits),
             "missing": format_eq_list(missing),
             "wrong": format_eq_list(wrong),
+        }
+        if reveal:
+            resp["correct_answer"] = item.correct_answer
+        return resp
+
+    if qtype == "nash_mixed":
+        payoffs = meta.get("payoffs")
+        mixed = meta.get("mixed_equilibrium") or {}
+        p_corr = mixed.get("p")
+        q_corr = mixed.get("q")
+
+        if payoffs is None or not isinstance(p_corr, list) or not isinstance(q_corr, list):
+            return {"ok": False, "error": "missing nash_mixed meta"}
+
+        m = len(p_corr)
+        n = len(q_corr)
+
+        ans_str = "" if answer is None else str(answer)
+        s = ans_str.strip().lower()
+
+        if "mixed" in s or "exists" in s:
+            return {"ok": True, "correct": True, "score": 100.0}
+
+        nums = _parse_floats(ans_str)
+
+        p_user = None
+        q_user = None
+
+        if m == 2 and n == 2 and len(nums) == 2:
+            p = nums[0]
+            q = nums[1]
+            p_user = _norm_prob_vec([p, 1.0 - p])
+            q_user = _norm_prob_vec([q, 1.0 - q])
+
+        elif len(nums) >= (m + n):
+            p_user = _norm_prob_vec(nums[:m])
+            q_user = _norm_prob_vec(nums[m : m + n])
+
+        if p_user is None or q_user is None:
+            return {
+                "ok": True,
+                "correct": False,
+                "score": 0.0,
+                "error": f"Could not parse mixed strategy. Provide {m+n} numbers (p then q) or (for 2x2) 2 numbers.",
+            }
+
+        tol = 0.05
+        ok = _vec_close(p_user, p_corr, tol) and _vec_close(q_user, q_corr, tol)
+
+        resp = {
+            "ok": True,
+            "correct": ok,
+            "score": 100.0 if ok else 0.0,
+            "p_user": p_user,
+            "q_user": q_user,
+        }
+        if reveal:
+            resp["p_correct"] = p_corr
+            resp["q_correct"] = q_corr
+        return resp
+
+    if qtype == "nash_combined":
+        payoffs = meta.get("payoffs")
+        pure_corr = meta.get("pure_equilibria") or []
+        mixed = meta.get("mixed_equilibrium")  # poate fi None
+
+        if payoffs is None:
+            return {"ok": False, "error": "missing nash_combined meta"}
+
+        m = len(payoffs)
+        n = len(payoffs[0]) if m else 0
+
+        ans_str = "" if answer is None else str(answer)
+        user_pairs, user_said_none = parse_nash_answer(ans_str, m, n, payoffs)
+
+        score_pure, hits, missing, wrong = evaluate_nash_answer(
+            pure_corr, user_pairs, user_said_none
+        )
+
+        s = ans_str.strip().lower()
+        user_says_mixed = ("mixed" in s) or ("exists" in s)
+        correct_has_mixed = mixed is not None
+        mixed_ok = (user_says_mixed == correct_has_mixed)
+
+        score = round(0.5 * float(score_pure) + (50.0 if mixed_ok else 0.0), 2)
+        correct = (score >= 99.99)
+
+        resp = {
+            "ok": True,
+            "correct": correct,
+            "score": score,
+            "hits": format_eq_list(hits),
+            "missing": format_eq_list(missing),
+            "wrong": format_eq_list(wrong),
+            "mixed_ok": mixed_ok,
+            "mixed_expected": correct_has_mixed,
         }
         if reveal:
             resp["correct_answer"] = item.correct_answer

@@ -1,0 +1,22 @@
+/* 09-responsive.css */
+@media (max-width: 900px) {
+  .grid2 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 980px) {
+  .panelGrid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .container { margin: 20px auto; }
+
+  .btn, input, select { width: 100%; max-width: none; }
+
+  .cardHead { flex-direction: column; gap: 8px; }
+  .iconBubble { align-self: flex-start; }
+
+  .row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .rowTight { gap: 12px; }
+
+  .field { width: 100%; }
+}

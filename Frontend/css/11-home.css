@@ -1,0 +1,135 @@
+/* 11-home.css */
+
+/* =========================
+   Home layout (vertical)
+   ========================= */
+
+.homeStack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  /* keep home a bit narrower than full container */
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Make the "link cards" feel like big buttons on home */
+.homeStack .linkcard {
+  min-height: 110px;
+}
+
+/* =========================
+   Hero styling (top section)
+   ========================= */
+
+.hero {
+  max-width: 900px;
+  margin: 0 auto 16px;
+}
+
+.heroTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hero h1 {
+  font-size: 2.1rem;
+  line-height: 1.15;
+  letter-spacing: 0.2px;
+}
+
+/* Bubble / badge */
+.hero .pill {
+  font-size: 0.9rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+
+  border: 1px solid rgba(59,130,246,0.55);
+  background: rgba(59,130,246,0.12);
+  color: #c7d2fe;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+
+.hero p {
+  margin: 10px 0 0;
+  max-width: 680px;
+  color: #a5b4fc;
+  line-height: 1.45;
+}
+
+/* Optional subtle divider under hero */
+.hero::after {
+  content: "";
+  display: block;
+  height: 1px;
+  background: #243042;
+  opacity: 0.7;
+  margin-top: 16px;
+}
+
+/* =========================
+   "How it works" card
+   ========================= */
+
+.infoCard {
+  padding: 18px;
+  max-width: 900px; /* match the stack width */
+  margin: 0 auto;
+}
+
+.steps {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  align-items: center;
+  gap: 12px;
+
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(36,48,66,0.65);
+  background: rgba(11,18,32,0.55);
+}
+
+.stepNum {
+  background: #0b1220;
+  color: #c7d2fe;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 0.85rem;
+  font-weight: 800;
+  border: 1px solid rgba(36,48,66,0.85);
+}
+
+/* =========================
+   Mobile
+   ========================= */
+
+@media (max-width: 480px) {
+  .homeStack,
+  .infoCard,
+  .hero {
+    max-width: none;
+    margin: 0;
+  }
+
+  .hero { margin-bottom: 14px; }
+  .hero h1 { font-size: 1.7rem; }
+  .hero .pill { font-size: 0.85rem; padding: 6px 10px; }
+
+  .infoCard { padding: 16px; }
+  .step { padding: 10px; }
+}

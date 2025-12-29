@@ -1,0 +1,26 @@
+/* 04-topbar.css */
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.topbarTitle h1 { font-size: 1.4rem; }
+
+.back {
+  color: #a5b4fc;
+  text-decoration: none;
+  border: 1px solid #243042;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #111827;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: border-color 0.2s;
+}
+
+.back:hover { border-color: #3b82f6; color: #e5e7eb; }

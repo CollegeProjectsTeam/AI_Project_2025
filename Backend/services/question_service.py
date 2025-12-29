@@ -3,15 +3,18 @@ from __future__ import annotations
 import inspect
 from typing import Any, Dict
 
-from Backend.core.question_generator import QuestionGenerator
 from Backend.config.runtime_store import store
-from Backend.persistence.services.question_template_service import get_template_text
-
-from Backend.core.search_strategies.n_queens_problem.n_queens_instance_generator import NQueensInstanceGenerator
-from Backend.core.search_strategies.n_queens_problem.n_queens_answear import AlgorithmComparator, string_name
-
+from Backend.core.question_generator import QuestionGenerator
+from Backend.core.search_strategies.n_queens_problem.n_queens_instance_generator import (
+    NQueensInstanceGenerator,
+)
+from Backend.core.search_strategies.n_queens_problem.n_queens_answear import (
+    AlgorithmComparator,
+    string_name,
+)
 from Backend.core.game_theory.NashInstanceGenerator import NashInstanceGenerator
 from Backend.core.game_theory.NashPureSolver import NashPureSolver
+from Backend.persistence.services.question_template_service import get_template_text
 
 qgen = QuestionGenerator()
 
@@ -31,7 +34,6 @@ def _clamp_int(v: Any, lo: int, hi: int, default: int) -> int:
 def _call_game_generator(fn, size: int, payoff_min: int, payoff_max: int):
     sig = inspect.signature(fn)
     params = sig.parameters
-
     kwargs = {}
 
     if "size" in params:
@@ -129,10 +131,7 @@ def generate_question(payload: Dict[str, Any]) -> Dict[str, Any]:
         question_text = qgen.render_question(template_text, {"instance": ascii_game})
 
         nash_list = NashPureSolver.find_nash_pure(inst["payoffs"])
-        if not nash_list:
-            correct = "none"
-        else:
-            correct = ", ".join([f"({i+1},{j+1})" for i, j in nash_list])
+        correct = "none" if not nash_list else ", ".join([f"({i+1},{j+1})" for i, j in nash_list])
 
         meta = {"type": "nash_pure", "m": m, "n": n, "payoffs": inst["payoffs"]}
         qa = store.put(ch_num, sub_num, question_text, correct, meta)

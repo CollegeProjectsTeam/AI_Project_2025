@@ -1,0 +1,45 @@
+/* 07-question.css */
+.questionBox {
+  margin: 14px 0;
+  background: #0b1220;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #243042;
+  overflow: auto;
+  min-height: 120px;
+  white-space: pre-wrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #e5e7eb;
+}
+
+.resultBox {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #243042;
+  background: rgba(11,18,32,0.7);
+  line-height: 1.4;
+}
+
+.resultBox.ok {
+  border-color: rgba(34,197,94,0.55);
+  background: rgba(34,197,94,0.10);
+  color: #bbf7d0;
+}
+
+.resultBox.bad {
+  border-color: rgba(239,68,68,0.55);
+  background: rgba(239,68,68,0.10);
+  color: #fecaca;
+}
+
+.errorBox {
+  margin: 14px 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(239,68,68,0.55);
+  background: rgba(239,68,68,0.10);
+  color: #fecaca;
+}

@@ -1,99 +1,15 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SmarTest · Generate question</title>
-  <link rel="stylesheet" href="/frontend/styles.css" />
-</head>
-<body>
-  <main class="container">
-    <div class="topbar">
-      <a class="back" href="/">← Home</a>
-      <div class="topbarTitle">
-        <h1>Generate question</h1>
-        <p class="subtle">Pick exactly one subchapter. Options are shown automatically.</p>
-      </div>
-    </div>
+{% extends "layout.html" %}
+{% block title %}SmarTest · Generate question{% endblock %}
 
-    <section class="panelGrid">
-      <section class="card">
-        <div class="row rowTight">
-          <label class="field grow">
-            Search
-            <input id="search" type="text" placeholder="e.g. Nash, N-Queens, Game Theory" />
-          </label>
-          <button id="btnExpandAll" class="btn">Collapse all</button>
-          <button id="btnClear" class="btn danger">Clear</button>
-        </div>
+{% block content %}
+  {% include "partials/question/topbar.html" %}
 
-        <div class="divider"></div>
+  <section class="panelGrid">
+    {% include "partials/question/catalog_panel.html" %}
+    {% include "partials/question/question_panel.html" %}
+  </section>
+{% endblock %}
 
-        <div class="row rowTight">
-          <h2 class="sectionTitle">Catalog</h2>
-          <div class="grow"></div>
-          <div id="selChip" class="chips"></div>
-        </div>
-
-        <div id="catalog" class="catalog skeleton">Loading...</div>
-
-        <div class="divider"></div>
-
-        <h2 class="sectionTitle">Options</h2>
-        <div id="options" class="options"></div>
-
-        <div class="divider"></div>
-
-        <div id="err" class="errorBox hidden"></div>
-
-        <div class="row rowTight">
-          <button id="btnGenerate" class="btn primary" disabled>
-            <span class="btnText">Generate</span>
-            <span class="spinner" aria-hidden="true"></span>
-          </button>
-        </div>
-      </section>
-
-      <section class="card">
-        <div class="row rowTight">
-          <h2 class="sectionTitle">Question</h2>
-          <div class="grow"></div>
-          <button id="btnToggleJson" class="btn">Raw JSON</button>
-        </div>
-
-        <pre id="questionText" class="questionBox"></pre>
-
-        <div id="answerOptionsWrap" class="hidden">
-          <div class="divider"></div>
-          <h2 class="sectionTitle">Answer options</h2>
-          <div id="answerOptions" class="chips"></div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="row rowTight">
-          <label class="field grow">
-            Your answer
-            <input id="answer" type="text" placeholder="Type your answer here..." />
-          </label>
-          <button id="btnCheck" class="btn" disabled>Check</button>
-        </div>
-
-        <div id="checkResult" class="resultBox hidden"></div>
-
-        <div class="divider"></div>
-
-        <details id="jsonPanel" class="details">
-          <summary class="detailsSummary">
-            <span>Raw JSON</span>
-            <span class="mutedSmall">debug</span>
-          </summary>
-          <pre id="out" class="out"></pre>
-        </details>
-      </section>
-    </section>
-  </main>
-
+{% block scripts %}
   <script type="module" src="/js/pages/question.js"></script>
-</body>
-</html>
+{% endblock %}

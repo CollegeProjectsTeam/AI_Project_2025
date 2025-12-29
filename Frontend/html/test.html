@@ -1,25 +1,18 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SmarTest · Generate test</title>
-  <link rel="stylesheet" href="/frontend/styles.css" />
-</head>
-<body>
-  <main class="container">
-    <div class="topbar">
-      <a class="back" href="/">← Home</a>
-      <div class="topbarTitle">
-        <h1>Generate test</h1>
-        <p class="subtle">Placeholder. We implement this after the question flow is complete.</p>
-      </div>
-    </div>
+{% extends "layout.html" %}
 
-    <section class="card">
-      <p class="muted">Coming soon: selection, combining questions, export.</p>
-      <button class="btn" disabled>Generate test</button>
-    </section>
-  </main>
-</body>
-</html>
+{% block title %}SmarTest · Generate test{% endblock %}
+
+{% block content %}
+  <div class="topbar">
+    <a class="back" href="/">← Home</a>
+    <div class="topbarTitle">
+      <h1>Generate test</h1>
+      <p class="subtle">Placeholder. We implement this after the question flow is complete.</p>
+    </div>
+  </div>
+
+  <section class="card">
+    <p class="muted">Coming soon: selection, combining questions, export.</p>
+    <button class="btn" disabled>Generate test</button>
+  </section>
+{% endblock %}

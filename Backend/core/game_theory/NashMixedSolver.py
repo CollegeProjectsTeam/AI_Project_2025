@@ -1,9 +1,16 @@
+from __future__ import annotations
+
 import itertools
+from typing import Any, Dict, List, Optional
+
+from Backend.services.logging_service import Logger
+
+log = Logger("NashMixedSolver")
 
 
 class NashMixedSolver:
     @staticmethod
-    def _solve_square(A, b, tol=1e-12):
+    def _solve_square(A: List[List[float]], b: List[float], tol: float = 1e-12) -> Optional[List[float]]:
         n = len(A)
         if n == 0 or any(len(row) != n for row in A) or len(b) != n:
             return None
@@ -33,10 +40,10 @@ class NashMixedSolver:
         return [M[i][n] for i in range(n)]
 
     @staticmethod
-    def _expected_u1(payoffs, q):
+    def _expected_u1(payoffs: List[List[List[Any]]], q: List[float]) -> List[float]:
         m = len(payoffs)
         n = len(payoffs[0]) if m else 0
-        out = []
+        out: List[float] = []
         for i in range(m):
             s = 0.0
             for j in range(n):
@@ -45,10 +52,10 @@ class NashMixedSolver:
         return out
 
     @staticmethod
-    def _expected_u2(payoffs, p):
+    def _expected_u2(payoffs: List[List[List[Any]]], p: List[float]) -> List[float]:
         m = len(payoffs)
         n = len(payoffs[0]) if m else 0
-        out = []
+        out: List[float] = []
         for j in range(n):
             s = 0.0
             for i in range(m):
@@ -57,7 +64,7 @@ class NashMixedSolver:
         return out
 
     @staticmethod
-    def solve(payoffs, tol: float = 1e-9):
+    def solve(payoffs: List[List[List[Any]]], tol: float = 1e-9) -> Optional[Dict[str, Any]]:
         m = len(payoffs)
         n = len(payoffs[0]) if m else 0
         if m == 0 or n == 0:
@@ -121,10 +128,12 @@ class NashMixedSolver:
                     v2 = max(eu2[jj] for jj in S2)
 
                     ok = True
+
                     for ii in S1:
                         if abs(eu1[ii] - v1) > 1e-5:
                             ok = False
                             break
+
                     if ok:
                         for ii in range(m):
                             if ii in S1:
@@ -138,6 +147,7 @@ class NashMixedSolver:
                             if abs(eu2[jj] - v2) > 1e-5:
                                 ok = False
                                 break
+
                     if ok:
                         for jj in range(n):
                             if jj in S2:
@@ -160,5 +170,5 @@ class NashMixedSolver:
         return None
 
     @staticmethod
-    def has_mixed(payoffs) -> bool:
+    def has_mixed(payoffs: List[List[List[Any]]]) -> bool:
         return NashMixedSolver.solve(payoffs) is not None

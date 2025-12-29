@@ -1,21 +1,26 @@
+from __future__ import annotations
+
+from typing import List, Tuple, Any
+
+from Backend.services.logging_service import Logger
+
+log = Logger("NashPureSolver")
+
+
 class NashPureSolver:
     @staticmethod
-    def find_nash_pure(payoffs):
-        """
-        payoffs[i][j] = [p1, p2]
-        return: listă de echilibre Nash (i, j) în indexare 0-based.
-        """
+    def find_nash_pure(payoffs: List[List[List[Any]]]) -> List[Tuple[int, int]]:
         m = len(payoffs)
-        n = len(payoffs[0])
+        n = len(payoffs[0]) if m else 0
+        if m == 0 or n == 0:
+            return []
 
-        solutions = []
+        solutions: List[Tuple[int, int]] = []
 
-        for i in range(m):       # strategii P1
-            for j in range(n):   # strategii P2
-
+        for i in range(m):
+            for j in range(n):
                 p1_ij, p2_ij = payoffs[i][j]
 
-                # Condiție P1: payoff maxim pe coloană j
                 best_for_p1 = True
                 for ii in range(m):
                     if payoffs[ii][j][0] > p1_ij:
@@ -24,7 +29,6 @@ class NashPureSolver:
                 if not best_for_p1:
                     continue
 
-                # Condiție P2: payoff maxim pe rândul i
                 best_for_p2 = True
                 for jj in range(n):
                     if payoffs[i][jj][1] > p2_ij:

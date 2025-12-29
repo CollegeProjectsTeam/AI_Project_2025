@@ -2,6 +2,9 @@ import os
 import time
 import importlib.util
 
+from Backend.services import Logger
+
+log = Logger("NQueensComparator")
 
 class AlgorithmComparator:
     ALGORITHM_ORDER = [
@@ -23,31 +26,87 @@ class AlgorithmComparator:
         current_dir = os.path.dirname(__file__)
         search_strategies_root = os.path.dirname(current_dir)
         algorithms_dir = os.path.join(search_strategies_root, "Algorithms")
+
+        log.info(
+            "Resolving algorithms directory",
+            ctx={
+                "current_dir": current_dir,
+                "search_strategies_root": search_strategies_root,
+                "algorithms_dir": algorithms_dir,
+            },
+        )
+
         if not os.path.exists(algorithms_dir):
-            raise FileNotFoundError(f"[NQueens Comparator] Algorithms folder not found: {algorithms_dir}")
+            log.error(
+                "Algorithms folder not found",
+                ctx={"algorithms_dir": algorithms_dir},
+            )
+            raise FileNotFoundError(
+                f"[NQueens Comparator] Algorithms folder not found: {algorithms_dir}"
+            )
+
+        log.ok("Algorithms folder resolved", ctx={"algorithms_dir": algorithms_dir})
         return algorithms_dir
 
     @staticmethod
     def compare_algorithms(board):
         algorithms_path = AlgorithmComparator._get_algorithms_path()
+
+        log.info(
+            "Starting N-Queens algorithm comparison",
+            ctx={
+                "algorithms_path": algorithms_path,
+                "board_size": len(board) if board else None,
+            },
+        )
+
         results = {}
         report_string = ""
         times_vector = [None] * len(AlgorithmComparator.ALGORITHM_ORDER)
 
         for idx, algorithm_name in enumerate(AlgorithmComparator.ALGORITHM_ORDER):
             filepath = os.path.join(algorithms_path, f"{algorithm_name}.py")
+
+            log.info(
+                "Loading algorithm module",
+                ctx={
+                    "algorithm": algorithm_name,
+                    "index": idx,
+                    "filepath": filepath,
+                },
+            )
+
             if not os.path.exists(filepath):
+                log.warn(
+                    "Algorithm file missing",
+                    ctx={"algorithm": algorithm_name, "filepath": filepath},
+                )
                 report_string += f"{string_name(algorithm_name)} missing file\n"
                 continue
 
-            spec = importlib.util.spec_from_file_location(algorithm_name, filepath)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
+            try:
+                spec = importlib.util.spec_from_file_location(algorithm_name, filepath)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+            except Exception as e:
+                log.error(
+                    "Failed to import algorithm module",
+                    ctx={"algorithm": algorithm_name, "filepath": filepath},
+                    exc=e,
+                )
+                report_string += f"{string_name(algorithm_name)} ERROR: {e}\n"
+                continue
 
             solve_fn = getattr(module, "solve_nqueens", None)
             if not solve_fn:
+                log.warn(
+                    "Algorithm module missing solve_nqueens",
+                    ctx={"algorithm": algorithm_name, "filepath": filepath},
+                )
                 report_string += f"{string_name(algorithm_name)} missing solve_nqueens\n"
                 continue
+
+            log.info("Running algorithm", ctx={"algorithm": algorithm_name})
 
             start = time.time()
             try:
@@ -55,20 +114,56 @@ class AlgorithmComparator:
                 exec_time = time.time() - start
 
                 if solution:
-                    report_string += f"{string_name(algorithm_name)} found a solution in {exec_time:.6f}s\n"
+                    log.ok(
+                        "Algorithm found solution",
+                        ctx={
+                            "algorithm": algorithm_name,
+                            "execution_time_s": round(exec_time, 6),
+                        },
+                    )
+                    report_string += (
+                        f"{string_name(algorithm_name)} found a solution in {exec_time:.6f}s\n"
+                    )
                     results[algorithm_name] = (exec_time, solution)
                     times_vector[idx] = exec_time
                 else:
+                    log.warn(
+                        "Algorithm did not find solution",
+                        ctx={
+                            "algorithm": algorithm_name,
+                            "execution_time_s": round(exec_time, 6),
+                        },
+                    )
                     report_string += f"{string_name(algorithm_name)} did not find a solution\n"
+
             except Exception as e:
+                exec_time = time.time() - start
+                log.error(
+                    "Algorithm crashed while solving",
+                    ctx={
+                        "algorithm": algorithm_name,
+                        "execution_time_s": round(exec_time, 6),
+                    },
+                    exc=e,
+                )
                 report_string += f"{string_name(algorithm_name)} ERROR: {e}\n"
 
         if not results:
+            log.warn("No algorithm produced a solution")
             return None
 
         fastest_algorithm_key = min(results, key=lambda k: results[k][0])
         fastest_time, fastest_solution = results[fastest_algorithm_key]
         percentages = AlgorithmComparator.calculate_time_percentages(times_vector)
+
+        log.ok(
+            "Comparison finished",
+            ctx={
+                "fastest_algorithm_key": fastest_algorithm_key,
+                "fastest_algorithm": string_name(fastest_algorithm_key),
+                "fastest_time_s": round(fastest_time, 6),
+            },
+        )
 
         return {
             "fastest_algorithm_key": fastest_algorithm_key,
@@ -84,9 +179,19 @@ class AlgorithmComparator:
     def calculate_time_percentages(times_vector):
         valid = [t for t in times_vector if t is not None]
         if not valid:
+            log.warn("No valid execution times for percentage calculation")
             return [None] * len(times_vector)
 
         fastest = min(valid)
+        log.info(
+            "Calculating time percentages",
+            ctx={
+                "fastest_time_s": round(fastest, 6),
+                "valid_count": len(valid),
+                "total_count": len(times_vector),
+            },
+        )
+
         out = []
         for t in times_vector:
             if t is None:
@@ -102,7 +207,6 @@ class AlgorithmComparator:
     @staticmethod
     def answer_options():
         return [string_name(k) for k in AlgorithmComparator.ALGORITHM_ORDER]
-
 
 def string_name(algorithm_name):
     names = {
