@@ -67,9 +67,9 @@ def evaluate_nash_answer(
 ) -> tuple[float, List[Tuple[int, int]], List[Tuple[int, int]], List[Tuple[int, int]]]:
     if not correct_eqs:
         if user_said_none and not user_eqs:
-            log.ok("Nash evaluation: correct none", {"score": 100.0})
+            log.ok("nash evaluation: correct none", {"score": 100.0})
             return 100.0, [], [], []
-        log.warn("Nash evaluation: expected none but user gave eqs", {"score": 0.0, "user_eqs": len(user_eqs)})
+        log.warn("nash evaluation: expected none but user gave eqs", {"score": 0.0, "user_eqs": len(user_eqs)})
         return 0.0, [], [], user_eqs
 
     correct_set = set(correct_eqs)
@@ -83,7 +83,7 @@ def evaluate_nash_answer(
     score = round(score, 2)
 
     log.ok(
-        "Nash evaluated",
+        "nash evaluated",
         {"score": score, "hits": len(hits), "missing": len(missing), "wrong": len(wrong)},
     )
 

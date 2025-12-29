@@ -12,8 +12,8 @@ from Backend.core.search_strategies.n_queens_problem.n_queens_answear import (
     AlgorithmComparator,
     string_name,
 )
-from Backend.core.game_theory.NashInstanceGenerator import NashInstanceGenerator
-from Backend.core.game_theory.NashPureSolver import NashPureSolver
+from Backend.core.game_theory.nash.NashInstanceGenerator import NashInstanceGenerator
+from Backend.core.game_theory.nash.NashPureSolver import NashPureSolver
 from Backend.persistence.services.question_template_service import get_template_text
 from Backend.services import Logger
 
@@ -149,7 +149,7 @@ def generate_question(payload: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     # =========================
-    # Nash Pure (2,1)
+    # nash Pure (2,1)
     # =========================
     if (ch_num, sub_num) == (2, 1):
         m = _clamp_int(options.get("m"), 2, 5, 2)
@@ -178,7 +178,7 @@ def generate_question(payload: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     # =========================
-    # Nash Mixed (2,2)
+    # nash Mixed (2,2)
     # =========================
     if (ch_num, sub_num) == (2, 2):
         size = _clamp_int(options.get("size"), 2, 3, 2)
@@ -215,7 +215,7 @@ def generate_question(payload: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     # =========================
-    # Nash Combined (2,3)
+    # nash Combined (2,3)
     # =========================
     if (ch_num, sub_num) == (2, 3):
         size = _clamp_int(options.get("size"), 2, 3, 2)
