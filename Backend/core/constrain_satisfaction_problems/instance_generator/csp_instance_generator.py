@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple
 try:
     from Backend.services.logging_service import Logger
 except Exception:
-    from Backend.services import Logger  # fallback
+    from Backend.services import Logger
 
 from Backend.core.constrain_satisfaction_problems.instance_generator.csp_models import CSPGenConfig
 

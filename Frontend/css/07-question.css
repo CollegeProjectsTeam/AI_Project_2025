@@ -164,3 +164,94 @@
   height: 12px;
   background: rgba(255,255,255,0.12);
 }
+#questionRender {
+  display: block;
+}
+
+#questionRender.hidden {
+  display: none;
+}
+
+.cspCard {
+  background: #0b1220;
+  border: 1px solid #243042;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.cspTitle {
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.cspSection {
+  margin-top: 10px;
+}
+
+.cspLabel {
+  font-weight: 700;
+  opacity: 0.9;
+  margin-bottom: 6px;
+}
+
+.cspText {
+  opacity: 0.95;
+  line-height: 1.35;
+  font-family: inherit;
+}
+
+.cspFormatText {
+  white-space: pre-line;
+  word-break: break-word;
+  font-family: inherit;
+}
+
+.cspChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cspGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+@media (max-width: 900px) {
+  .cspGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cspList {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.cspList li {
+  margin: 6px 0;
+}
+
+.cspRaw {
+  margin-top: 10px;
+}
+
+.cspRaw summary {
+  cursor: pointer;
+  user-select: none;
+  opacity: 0.9;
+}
+
+.cspRaw pre {
+  margin-top: 8px;
+  max-height: 260px;
+  overflow: auto;
+  border: 1px solid #243042;
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  white-space: pre-wrap;
+  word-break: break-word;
+}

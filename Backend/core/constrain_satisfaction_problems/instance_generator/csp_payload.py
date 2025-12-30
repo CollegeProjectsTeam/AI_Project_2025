@@ -1,15 +1,21 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Set
+
+try:
+    from Backend.services.logging_service import Logger
+except Exception:
+    from Backend.services import Logger
 
 JsonDict = Dict[str, Any]
+log = Logger("CSP.Payload")
+
 
 class CSPPayloadNormalizer:
     @staticmethod
     def normalize(payload: JsonDict) -> JsonDict:
         p = dict(payload or {})
 
-        # settings defaults
         p.setdefault("inference", "NONE")
         p.setdefault("var_heuristic", "FIXED")
         p.setdefault("value_heuristic", "NONE")
@@ -18,7 +24,6 @@ class CSPPayloadNormalizer:
 
         inst = dict(p.get("instance") or {})
 
-        # variables / order
         variables = inst.get("variables") or []
         inst["variables"] = [str(v) for v in variables]
 
@@ -28,7 +33,6 @@ class CSPPayloadNormalizer:
         elif inst["variables"]:
             inst["order"] = list(inst["variables"])
 
-        # domains: force list[int], unique, sorted
         domains = inst.get("domains") or {}
         norm_domains: Dict[str, List[int]] = {}
         if isinstance(domains, dict):
@@ -45,7 +49,6 @@ class CSPPayloadNormalizer:
                 norm_domains[str(k)] = sorted(set(vals))
         inst["domains"] = norm_domains
 
-        # constraints: dict with {type, vars:[a,b]}
         constraints = inst.get("constraints") or []
         norm_constraints: List[JsonDict] = []
         if isinstance(constraints, list):
@@ -60,7 +63,6 @@ class CSPPayloadNormalizer:
                     )
         inst["constraints"] = norm_constraints
 
-        # partial_assignment: dict[str,int]
         pa = inst.get("partial_assignment") or {}
         norm_pa: Dict[str, int] = {}
         if isinstance(pa, dict):
@@ -72,6 +74,17 @@ class CSPPayloadNormalizer:
         inst["partial_assignment"] = norm_pa
 
         p["instance"] = inst
+
+        log.info(
+            "CSP payload normalized",
+            {
+                "vars": len(inst.get("variables") or []),
+                "domains": len(inst.get("domains") or {}),
+                "constraints": len(inst.get("constraints") or []),
+                "partial_assignment": len(inst.get("partial_assignment") or {}),
+            },
+        )
+
         return p
 
 
@@ -141,3 +154,14 @@ class CSPPayloadValidator:
                     raise ValueError(
                         f"CSP payload invalid: partial_assignment[{v}]={val} is not in domain {domains[v]}"
                     )
+
+        log.info(
+            "CSP payload validated",
+            {
+                "strict": strict,
+                "vars": len(variables),
+                "constraints": len(constraints),
+                "domains": len(domains),
+                "partial_assignment": len(pa),
+            },
+        )

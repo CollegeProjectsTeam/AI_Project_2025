@@ -168,13 +168,27 @@ def _build_explanation(
     meta: Dict[str, Any],
 ) -> str:
     settings = meta.get("settings") or {}
+
+    def _fmt_asg(asg: Optional[Dict[str, int]]) -> str:
+        if not asg:
+            return "{}"
+        return json.dumps(asg, ensure_ascii=False, sort_keys=True)
+
     lines = [
-        "CSP (Constraint Satisfaction Problem) is solved via Backtracking plus optional optimizations.",
-        "Supported optimizations here: MRV (variable), LCV (values), FC (forward checking), AC-3/MAC (arc consistency).",
-        "Answer format accepted: JSON assignment like {\"A\":1,\"B\":3} or text like A=1, B=3.",
-        f"Expected found={expected_found}, expected_solution={expected_solution}.",
-        f"Received assignment={user_assignment}.",
-        f"Settings: {settings}.",
+        "Constraint Satisfaction Problems (CSP) are solved via Backtracking with optional optimizations.",
+        "Supported optimizations here:",
+        "- MRV (Minimum Remaining Values) for variable selection",
+        "- LCV (Least Constraining Value) for value ordering",
+        "- FC (Forward Checking) for inference",
+        "- AC-3 (Arc Consistency) for consistency enforcement",
+        "",
+        'Answer format accepted: JSON assignment like {"A":1,"B":3} or text like A=1, B=3.',
+        "",
+        f"Expected solution found = {expected_found}",
+        f"Expected solution = {_fmt_asg(expected_solution) if expected_solution is not None else 'None'}",
+        f"Received solution = {_fmt_asg(user_assignment)}",
+        "",
+        f"Settings = {json.dumps(settings, ensure_ascii=False, sort_keys=True)}",
     ]
     return "\n".join(lines)
 
@@ -188,7 +202,7 @@ def evaluate_csp(item: Any, answer: Any, reveal: bool = False) -> Dict[str, Any]
         log.info("Invalid CSP answer format", {"qid": qid, "answer": str(answer or "")})
         return {
             "ok": False,
-            "error": 'Answer must be an assignment like {"A":1,"B":3} or "A=1, B=3".',
+            "error": 'Invalid answer format. Use JSON like {"A":1,"B":3} or text like "A=1, B=3".',
         }
 
     exp_found, exp_solution = _expected_from_item(item)

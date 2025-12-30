@@ -1,5 +1,3 @@
-DROP TABLE IF EXISTS questions_answers CASCADE;
-DROP TABLE IF EXISTS problem_instances CASCADE;
 DROP TABLE IF EXISTS template_variables CASCADE;
 DROP TABLE IF EXISTS question_templates CASCADE;
 DROP TABLE IF EXISTS subchapters CASCADE;
@@ -32,20 +30,6 @@ CREATE TABLE template_variables (
     template_id INT NOT NULL REFERENCES question_templates(id) ON DELETE CASCADE,
     variable_name TEXT NOT NULL,
     data_type VARCHAR(50) DEFAULT 'string'
-);
-
-CREATE TABLE problem_instances (
-    id SERIAL PRIMARY KEY,
-    template_id INT NOT NULL REFERENCES question_templates(id) ON DELETE CASCADE,
-    instance_params JSONB NOT NULL
-);
-
-CREATE TABLE questions_answers (
-    id SERIAL PRIMARY KEY,
-    instance_id INT NOT NULL REFERENCES problem_instances(id) ON DELETE CASCADE,
-    generated_question TEXT NOT NULL,
-    correct_answer TEXT NOT NULL,
-    variables_used JSONB
 );
 
 DO $$
@@ -145,22 +129,6 @@ BEGIN
         (hanoi_template_id, 'problem_name', 'string'),
         (hanoi_template_id, 'instance', 'JSON');
 
-    INSERT INTO problem_instances (template_id, instance_params)
-    VALUES (
-        nqueens_template_id,
-        '{
-          "problem_name": "N-Queens",
-          "board_size": 4,
-          "queen_number_on_board": 2,
-          "board": [
-            [1, 0, 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0]
-          ]
-        }'::jsonb
-    );
-
     ------------------------------------------------------
     -- CHAPTER 2 – Game Theory
     ------------------------------------------------------
@@ -235,7 +203,7 @@ BEGIN
     RETURNING id INTO minimax_sub_id;
 
     ------------------------------------------------------
-    -- Template for MinMax (Alpha-Beta) (medium)
+    -- Template for MinMax (Alpha-Beta)
     ------------------------------------------------------
     INSERT INTO question_templates (chapter_id, subchapter_id, template_text, difficulty)
     VALUES (
@@ -248,8 +216,8 @@ BEGIN
     INSERT INTO template_variables (template_id, variable_name, data_type)
     VALUES (minimax_template_id, 'instance', 'JSON');
 
-        ------------------------------------------------------
-    -- CHAPTER 3 – CSP (Backtracking + Optimizations)
+    ------------------------------------------------------
+    -- CHAPTER 3 – CSP (Backtracking)
     ------------------------------------------------------
     INSERT INTO chapters (chapter_number, chapter_name)
     VALUES (3, 'Constrain Satisfaction Problems')
@@ -259,24 +227,23 @@ BEGIN
     VALUES (chapter_id3, 1, 'Backtracking')
     RETURNING id INTO csp_sub_id;
 
-    ------------------------------------------------------
-    -- Single template with multiple options in instance
-    ------------------------------------------------------
     INSERT INTO question_templates (chapter_id, subchapter_id, template_text, difficulty)
     VALUES (
         chapter_id3,
         csp_sub_id,
-        'Date fiind variabilele, domeniile, constrangerile si asignarea partiala, continuati rezolvarea folosind Backtracking cu optiunile: inference={inference}, var_heuristic={var_heuristic}, value_heuristic={value_heuristic}, consistency={consistency}. Cerinta: {ask_for}. Instanta: {instance}',
+        'Date fiind variabilele, domeniile si constrangerile, continuati rezolvarea folosind Backtracking cu optimizarile mentionate.
+        Optiuni: {options}
+        Cerinta: {ask_for}
+        Instanta:
+        {instance}',
         'medium'
     ) RETURNING id INTO csp_template_id;
 
     INSERT INTO template_variables (template_id, variable_name, data_type)
     VALUES
-        (csp_template_id, 'inference', 'string'),
-        (csp_template_id, 'var_heuristic', 'string'),
-        (csp_template_id, 'value_heuristic', 'string'),
-        (csp_template_id, 'consistency', 'string'),
+        (csp_template_id, 'options', 'JSON'),
         (csp_template_id, 'ask_for', 'string'),
         (csp_template_id, 'instance', 'JSON');
+
 
 END $$;

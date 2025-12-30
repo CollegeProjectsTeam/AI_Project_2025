@@ -16,6 +16,25 @@ from Backend.services.question_handlers.utils import clamp_int
 log = Logger("QH.CSP")
 
 
+def _fmt(v: Any) -> str:
+    if isinstance(v, (dict, list)):
+        return json.dumps(v, ensure_ascii=False, indent=2)
+    return str(v)
+
+
+def _render_template(template_text: str, vars: Dict[str, Any]) -> str:
+    class _SafeDict(dict):
+        def __missing__(self, key: str) -> str:
+            return "{" + key + "}"
+
+    safe = _SafeDict({k: _fmt(v) for k, v in (vars or {}).items()})
+    try:
+        return (template_text or "").format_map(safe)
+    except Exception as ex:
+        log.warn("Template render failed, returning raw template", {"error": str(ex)})
+        return (template_text or "")
+
+
 def _label_inference(code: str) -> str:
     code = (code or "").upper()
     if code == "FC":
@@ -131,30 +150,6 @@ class CSPQuestionHandler:
 
         inst = payload.get("instance") or {}
         inst_display = _display_instance(inst)
-        inst_text = json.dumps(inst_display, ensure_ascii=False, indent=2)
-
-        lines = []
-        lines.append("Given the variables, domains and constraints, solve the CSP using Backtracking.")
-        lines.append("")
-        lines.append("Options:")
-
-        lines.append(f"- Inference: {_label_inference(inference)}")
-
-        if consistency != "NONE":
-            lines.append(f"- Consistency: {_label_consistency(consistency)}")
-
-        if var_heuristic != "FIXED":
-            lines.append(f"- Variable heuristic: {_label_var_heuristic(var_heuristic)}")
-
-        lines.append(f"- Value heuristic: {_label_value_heuristic(value_heuristic)}")
-        lines.append("")
-        lines.append("Task:")
-        lines.append(f"- {_label_ask_for(ask_for)}")
-        lines.append("")
-        lines.append("Instance:")
-        lines.append(inst_text)
-
-        question_text = "\n".join(lines)
 
         solved = CSPSolver.solve(payload, strict=True)
         if not solved.get("ok"):
@@ -168,18 +163,51 @@ class CSPQuestionHandler:
         solution_pack = {"found": found, "solution": solution, "stats": stats}
         correct_answer = json.dumps(solution_pack, ensure_ascii=False)
 
-        meta = {
-            "type": "csp",
-            "answer_format": "json",
-            "settings": {
+        settings = {
+            "inference": inference,
+            "var_heuristic": var_heuristic,
+            "value_heuristic": value_heuristic,
+            "consistency": consistency,
+            "ask_for": _label_ask_for(ask_for),
+        }
+
+        template_vars = {
+            "statement": (template_text or "").strip(),
+            "options": {
                 "inference": inference,
+                "consistency": consistency,
                 "var_heuristic": var_heuristic,
                 "value_heuristic": value_heuristic,
-                "consistency": consistency,
-                "ask_for": ask_for,
             },
+            "ask_for": _label_ask_for(ask_for),
+            "instance": inst_display,
+            "answer_format": (
+                'JSON: {"A":1,"B":3,"C":7}\n'
+                "sau text: A=1, B=3, C=7\n"
+                "daca nu exista solutie: none"
+            ),
+        }
+
+        base_text = _render_template(template_text, template_vars).strip() or (
+            "Date fiind variabilele, domeniile si constrangerile, continuati rezolvarea folosind Backtracking cu optimizarile mentionate."
+        )
+
+        format_help = (
+            "\n\nFormat raspuns:\n"
+            '- JSON: {"A":1,"B":3,"C":7}\n'
+            "- sau text: A=1, B=3, C=7\n"
+            "- daca nu exista solutie: none"
+        )
+
+        question_text = (base_text + format_help).strip()
+
+        meta = {
+            "type": "csp",
+            "answer_format": "assignment_or_json_or_none",
+            "settings": settings,
             "instance": inst,
             "solution": solution_pack,
+            "template_vars": template_vars,
         }
 
         qa = store.put(ch_num, sub_num, question_text, correct_answer, meta)

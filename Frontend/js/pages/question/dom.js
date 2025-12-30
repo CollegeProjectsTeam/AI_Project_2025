@@ -9,6 +9,7 @@ export const dom = {
 
   btnGenerate: document.getElementById("btnGenerate"),
   questionText: document.getElementById("questionText"),
+  questionRender: document.getElementById("questionRender"),
 
   treePanel: document.getElementById("treePanel"),
 
