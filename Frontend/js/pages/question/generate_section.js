@@ -15,6 +15,30 @@ export function initGenerateSection({ dom, state, catalogApi }) {
     dom.treePanel.classList.add("hidden");
   }
 
+  function isCsp(q) {
+    const t = String(q?.meta?.type || "").toLowerCase();
+    if (t === "csp_backtracking" || t === "csp") return true;
+    return Number(q?.chapter_number) === 3 && Number(q?.subchapter_number) === 1;
+  }
+
+  function renderQuestion(dom, q) {
+    const renderRoot = dom.questionRender;
+    const textRoot = dom.questionText;
+
+    if (!renderRoot || !textRoot) return;
+
+    if (isCsp(q)) {
+      textRoot.classList.add("hidden");
+      renderRoot.classList.remove("hidden");
+      renderCspQuestion(renderRoot, q);
+      return;
+    }
+
+    renderRoot.classList.add("hidden");
+    textRoot.classList.remove("hidden");
+    textRoot.textContent = q?.question_text || "";
+  }
+
   async function onGenerate() {
     clearError(dom);
     clearResult(dom);
@@ -40,10 +64,12 @@ export function initGenerateSection({ dom, state, catalogApi }) {
 
       if (!res.ok) {
         showError(dom, res.data?.error || `Request failed (${res.status})`);
+
         if (dom.questionText) dom.questionText.textContent = "";
         if (dom.questionRender) dom.questionRender.innerHTML = "";
         dom.questionRender?.classList.add("hidden");
         dom.questionText?.classList.remove("hidden");
+
         state.currentQuestionId = null;
 
         if (dom.btnCheck) dom.btnCheck.disabled = true;
@@ -77,7 +103,8 @@ export function initGenerateSection({ dom, state, catalogApi }) {
       const meta = q?.meta || {};
       renderAnswerOptions(dom, meta);
 
-      if (meta.type === "minmax") {
+      const t = String(meta.type || "").toLowerCase();
+      if ((t.includes("minmax") || t.includes("minimax") || t.includes("alpha")) && meta.tree) {
         renderGameTree(dom.treePanel, meta.tree, meta.root_player);
       } else {
         clearTree();
@@ -90,30 +117,6 @@ export function initGenerateSection({ dom, state, catalogApi }) {
       setLoading(dom, false);
     }
   }
-
-function isCsp(q) {
-  const t = q?.meta?.type;
-  if (t === "csp_backtracking" || t === "csp") return true;
-  return q?.chapter_number === 3 && q?.subchapter_number === 1;
-}
-
-function renderQuestion(dom, q) {
-  const renderRoot = dom.questionRender;
-  const textRoot = dom.questionText;
-
-  if (!renderRoot || !textRoot) return;
-
-  if (isCsp(q)) {
-    textRoot.classList.add("hidden");
-    renderRoot.classList.remove("hidden");
-    renderCspQuestion(renderRoot, q);
-    return;
-  }
-
-  renderRoot.classList.add("hidden");
-  textRoot.classList.remove("hidden");
-  textRoot.textContent = q?.question_text || "";
-}
 
   dom.btnGenerate?.addEventListener("click", onGenerate);
 

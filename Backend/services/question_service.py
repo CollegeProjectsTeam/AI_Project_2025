@@ -12,24 +12,53 @@ handlers = build_handlers(qgen)
 log = Logger("QuestionService")
 
 
+def _pick_difficulty(ch_num: int, options: Dict[str, Any]) -> str | None:
+    # Chapter 1: no difficulty in FE (for now)
+    if ch_num == 1:
+        return None
+
+    d = str((options or {}).get("difficulty") or "medium").strip().lower()
+    if d in ("easy", "medium", "hard"):
+        return d
+    return "medium"
+
+
 def generate_question(payload: Dict[str, Any]) -> Dict[str, Any]:
     ch_num = int(payload.get("chapter_number") or 0)
     sub_num = int(payload.get("subchapter_number") or 0)
     options = payload.get("options") or {}
 
-    log.info("generate_question called", ctx={"chapter_number": ch_num, "subchapter_number": sub_num, "has_options": bool(options)})
+    difficulty = _pick_difficulty(ch_num, options)
+
+    log.info(
+        "generate_question called",
+        ctx={
+            "chapter_number": ch_num,
+            "subchapter_number": sub_num,
+            "difficulty": difficulty,
+            "has_options": bool(options),
+        },
+    )
 
     if ch_num <= 0 or sub_num <= 0:
         return {"ok": False, "error": "chapter_number and subchapter_number are required"}
 
-    template_text = get_template_text(ch_num, sub_num)
+    template_text = get_template_text(ch_num, sub_num, difficulty=difficulty)
     if not template_text:
-        return {"ok": False, "error": "no template found for this chapter/subchapter"}
+        return {"ok": False, "error": "no template found for this chapter/subchapter/difficulty"}
 
     for h in handlers:
         if h.can_handle(ch_num, sub_num):
             resp = h.generate(ch_num, sub_num, template_text, options)
-            log.info("generate_question handled", ctx={"chapter_number": ch_num, "subchapter_number": sub_num, "ok": resp.get("ok")})
+            log.info(
+                "generate_question handled",
+                ctx={
+                    "chapter_number": ch_num,
+                    "subchapter_number": sub_num,
+                    "difficulty": difficulty,
+                    "ok": resp.get("ok"),
+                },
+            )
             return resp
 
     log.warn("Subchapter not implemented", {"chapter_number": ch_num, "subchapter_number": sub_num})

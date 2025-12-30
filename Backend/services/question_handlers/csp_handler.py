@@ -57,8 +57,8 @@ def _label_var_heuristic(code: str) -> str:
     code = (code or "").upper()
     if code == "MRV":
         return "MRV (Minimum Remaining Values)"
-    if code == "FIXED":
-        return "Fixed order"
+    if code == "NONE":
+        return "None"
     return code
 
 
@@ -67,14 +67,14 @@ def _label_value_heuristic(code: str) -> str:
     if code == "LCV":
         return "LCV (Least Constraining Value)"
     if code == "NONE":
-        return "No value ordering"
+        return "None"
     return code
 
 
 def _label_ask_for(code: str) -> str:
     code = (code or "").upper()
-    if code == "TRACE_UNTIL_SOLUTION":
-        return "Show the full backtracking trace until a solution is found (or failure)."
+    if code == "FINAL_ASSIGNMENT":
+        return "Find a valid assignment (or report none)."
     return code
 
 
@@ -101,29 +101,60 @@ class CSPQuestionHandler:
         options: Dict[str, Any],
     ) -> Dict[str, Any]:
         options = options or {}
+        difficulty = str(options.get("difficulty") or "medium").strip().lower()
+        if difficulty not in ("easy", "medium", "hard"):
+            difficulty = "medium"
 
         inference = str(options.get("inference") or "FC").strip().upper()
         consistency = str(options.get("consistency") or "NONE").strip().upper()
-        var_heuristic = str(options.get("var_heuristic") or "FIXED").strip().upper()
+        var_heuristic = str(options.get("var_heuristic") or "NONE").strip().upper()
         value_heuristic = str(options.get("value_heuristic") or "LCV").strip().upper()
 
+        # sanitize
         if inference not in ("NONE", "FC"):
             inference = "FC"
         if consistency not in ("NONE", "AC3"):
             consistency = "NONE"
-        if var_heuristic not in ("FIXED", "MRV"):
-            var_heuristic = "FIXED"
+        if var_heuristic not in ("NONE", "MRV"):
+            var_heuristic = "NONE"
         if value_heuristic not in ("NONE", "LCV"):
             value_heuristic = "LCV"
 
-        num_vars = clamp_int(options.get("num_vars"), 2, 8, 3)
+        # force on EASY (cerinta ta)
+        if difficulty == "easy":
+            consistency = "NONE"
+            value_heuristic = "NONE"
 
-        max_pairs = num_vars * (num_vars - 1) // 2
-        max_constraints = max(1, 2 * max_pairs)
-        num_constraints = clamp_int(options.get("num_constraints"), 1, max_constraints, 3)
+        # limits backend (oglindesc FE)
+        rules = {
+            "easy": {
+                "vars": (2, 4, 3),
+                "constraints": (1, 6, 3),
+                "domMin": (1, 4, 2),
+                "domMax": (1, 5, 4),
+            },
+            "medium": {
+                "vars": (2, 6, 4),
+                "constraints": (1, 12, 6),
+                "domMin": (1, 8, 2),
+                "domMax": (1, 10, 5),
+            },
+            "hard": {
+                "vars": (2, 8, 6),
+                "constraints": (1, 20, 12),
+                "domMin": (1, 10, 2),
+                "domMax": (1, 12, 6),
+            },
+        }
+        r = rules.get(difficulty, rules["medium"])
 
-        domain_min_size = clamp_int(options.get("domain_min_size"), 1, 10, 2)
-        domain_max_size = clamp_int(options.get("domain_max_size"), domain_min_size, 12, 4)
+        num_vars = clamp_int(options.get("num_vars"), r["vars"][0], r["vars"][1], r["vars"][2])
+        num_constraints = clamp_int(options.get("num_constraints"), r["constraints"][0], r["constraints"][1], r["constraints"][2])
+
+        domain_min_size = clamp_int(options.get("domain_min_size"), r["domMin"][0], r["domMin"][1], r["domMin"][2])
+        domain_max_size = clamp_int(options.get("domain_max_size"), r["domMax"][0], r["domMax"][1], r["domMax"][2])
+        if domain_max_size < domain_min_size:
+            domain_max_size = domain_min_size
 
         cfg = CSPGenConfig(
             num_vars=num_vars,
@@ -136,7 +167,7 @@ class CSPQuestionHandler:
             seed=None,
         )
 
-        ask_for = "TRACE_UNTIL_SOLUTION"
+        ask_for = "FINAL_ASSIGNMENT"
 
         payload = CSPInstanceGenerator.generate_random_payload(
             cfg,
@@ -145,7 +176,7 @@ class CSPQuestionHandler:
             value_heuristic=value_heuristic,
             consistency=consistency,
             ask_for=ask_for,
-            fixed_order=True,
+            fixed_order=(var_heuristic == "NONE"),
         )
 
         inst = payload.get("instance") or {}
@@ -164,6 +195,7 @@ class CSPQuestionHandler:
         correct_answer = json.dumps(solution_pack, ensure_ascii=False)
 
         settings = {
+            "difficulty": difficulty,
             "inference": inference,
             "var_heuristic": var_heuristic,
             "value_heuristic": value_heuristic,
@@ -189,7 +221,7 @@ class CSPQuestionHandler:
         }
 
         base_text = _render_template(template_text, template_vars).strip() or (
-            "Date fiind variabilele, domeniile si constrangerile, continuati rezolvarea folosind Backtracking cu optimizarile mentionate."
+            "Rezolvati CSP-ul folosind Backtracking cu optimizarile mentionate."
         )
 
         format_help = (
@@ -203,11 +235,18 @@ class CSPQuestionHandler:
 
         meta = {
             "type": "csp",
+            "difficulty": difficulty,
             "answer_format": "assignment_or_json_or_none",
             "settings": settings,
             "instance": inst,
             "solution": solution_pack,
             "template_vars": template_vars,
+            "labels": {
+                "inference": _label_inference(inference),
+                "consistency": _label_consistency(consistency),
+                "var_heuristic": _label_var_heuristic(var_heuristic),
+                "value_heuristic": _label_value_heuristic(value_heuristic),
+            },
         }
 
         qa = store.put(ch_num, sub_num, question_text, correct_answer, meta)
@@ -215,6 +254,7 @@ class CSPQuestionHandler:
         log.info(
             "CSP question generated",
             {
+                "difficulty": difficulty,
                 "found": found,
                 "vars": len(inst.get("variables") or []),
                 "constraints": len(inst.get("constraints") or []),

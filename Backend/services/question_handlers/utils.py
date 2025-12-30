@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import inspect
-from typing import Any
+from typing import Any, Iterable, Optional
 
 
 def clamp_int(v: Any, lo: int, hi: int, default: int) -> int:
@@ -14,6 +14,14 @@ def clamp_int(v: Any, lo: int, hi: int, default: int) -> int:
     if x > hi:
         return hi
     return x
+
+
+def clamp_str_choice(v: Any, allowed: Iterable[str], default: str) -> str:
+    s = str(v or "").strip().upper()
+    allowed_u = {str(a).strip().upper() for a in allowed}
+    if s in allowed_u:
+        return s
+    return str(default).strip().upper()
 
 
 def call_game_generator(fn, size: int, payoff_min: int, payoff_max: int):

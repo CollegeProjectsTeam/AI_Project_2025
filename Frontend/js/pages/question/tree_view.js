@@ -1,5 +1,9 @@
 function isLeaf(node) {
-  return node && typeof node === "object" && typeof node.value === "number" && !node.children;
+  if (!node || typeof node !== "object") return false;
+  const hasValue = typeof node.value === "number";
+  const kids = node.children;
+  const noKids = !Array.isArray(kids) || kids.length === 0;
+  return hasValue && noKids;
 }
 
 export function renderGameTree(rootEl, tree, rootPlayer) {
