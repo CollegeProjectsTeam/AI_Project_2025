@@ -7,7 +7,7 @@ from Backend.services.evaluators.nash_pure_evaluator import evaluate_nash_pure
 from Backend.services.evaluators.nash_mixed_evaluator import evaluate_nash_mixed
 from Backend.services.evaluators.nash_combined_evaluator import evaluate_nash_combined
 from Backend.services.evaluators.minmax_evaluator import evaluate_minmax
-
+from Backend.services.evaluators.csp_evaluator import evaluate_csp
 
 EvaluatorFn = Callable[..., Dict[str, Any]]
 
@@ -17,4 +17,5 @@ EVALUATORS: Dict[str, EvaluatorFn] = {
     "nash_mixed": evaluate_nash_mixed,
     "nash_combined": evaluate_nash_combined,
     "minmax": evaluate_minmax,
+    "csp": evaluate_csp,
 }

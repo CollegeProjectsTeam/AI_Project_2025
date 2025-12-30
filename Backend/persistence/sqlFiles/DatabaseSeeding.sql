@@ -76,6 +76,12 @@ DECLARE
         -- MinMax
     minimax_sub_id INT;
     minimax_template_id INT;
+
+        -- CSP
+    chapter_id3 INT;
+    csp_sub_id INT;
+    csp_template_id INT;
+
 BEGIN
     ------------------------------------------------------
     -- CHAPTER 1 – Search Strategies
@@ -241,5 +247,36 @@ BEGIN
 
     INSERT INTO template_variables (template_id, variable_name, data_type)
     VALUES (minimax_template_id, 'instance', 'JSON');
+
+        ------------------------------------------------------
+    -- CHAPTER 3 – CSP (Backtracking + Optimizations)
+    ------------------------------------------------------
+    INSERT INTO chapters (chapter_number, chapter_name)
+    VALUES (3, 'Constrain Satisfaction Problems')
+    RETURNING id INTO chapter_id3;
+
+    INSERT INTO subchapters (chapter_id, subchapter_number, subchapter_name)
+    VALUES (chapter_id3, 1, 'Backtracking')
+    RETURNING id INTO csp_sub_id;
+
+    ------------------------------------------------------
+    -- Single template with multiple options in instance
+    ------------------------------------------------------
+    INSERT INTO question_templates (chapter_id, subchapter_id, template_text, difficulty)
+    VALUES (
+        chapter_id3,
+        csp_sub_id,
+        'Date fiind variabilele, domeniile, constrangerile si asignarea partiala, continuati rezolvarea folosind Backtracking cu optiunile: inference={inference}, var_heuristic={var_heuristic}, value_heuristic={value_heuristic}, consistency={consistency}. Cerinta: {ask_for}. Instanta: {instance}',
+        'medium'
+    ) RETURNING id INTO csp_template_id;
+
+    INSERT INTO template_variables (template_id, variable_name, data_type)
+    VALUES
+        (csp_template_id, 'inference', 'string'),
+        (csp_template_id, 'var_heuristic', 'string'),
+        (csp_template_id, 'value_heuristic', 'string'),
+        (csp_template_id, 'consistency', 'string'),
+        (csp_template_id, 'ask_for', 'string'),
+        (csp_template_id, 'instance', 'JSON');
 
 END $$;
