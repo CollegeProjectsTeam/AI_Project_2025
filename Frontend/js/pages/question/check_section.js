@@ -59,15 +59,22 @@ export function initCheckSection({ dom, state }) {
         return;
       }
 
-      if (res.data.correct === false) {
-        const correct = res.data.correct_answer
-          ? ` Correct answer: ${res.data.correct_answer}`
-          : "";
-        const score =
-          typeof res.data.score === "number" ? ` (score: ${res.data.score}%)` : "";
-        setResult(dom, `Incorrect${score}.${correct}`, false);
-        return;
-      }
+    if (res.data.correct === false) {
+      const score =
+        typeof res.data.score === "number" ? ` (score: ${res.data.score}%)` : "";
+
+      const correctText =
+        typeof res.data.correct_answer_text === "string" && res.data.correct_answer_text.trim()
+          ? res.data.correct_answer_text.trim()
+          : res.data.correct_answer != null
+            ? JSON.stringify(res.data.correct_answer)
+            : "";
+
+      const correct = correctText ? ` Correct answer: ${correctText}` : "";
+
+      setResult(dom, `Incorrect${score}.${correct}`, false);
+      return;
+    }
 
       setResult(
         dom,
