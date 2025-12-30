@@ -1,0 +1,257 @@
+.questionBox {
+  margin: 14px 0;
+  background: #0b1220;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #243042;
+
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  max-height: 320px;
+  overflow: auto;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+
+  min-height: 120px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #e5e7eb;
+}
+
+.resultBox {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #243042;
+  background: rgba(11,18,32,0.7);
+  line-height: 1.4;
+
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.resultBox.ok {
+  border-color: rgba(34,197,94,0.55);
+  background: rgba(34,197,94,0.10);
+  color: #bbf7d0;
+}
+
+.resultBox.bad {
+  border-color: rgba(239,68,68,0.55);
+  background: rgba(239,68,68,0.10);
+  color: #fecaca;
+}
+
+.errorBox {
+  margin: 14px 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(239,68,68,0.55);
+  background: rgba(239,68,68,0.10);
+  color: #fecaca;
+
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+#treePanel {
+  margin-top: 10px;
+}
+
+.treePanel.hidden {
+  display: none;
+}
+
+.treeWrap {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  overflow: auto;
+  max-height: 260px;
+}
+
+.treeTitle {
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.tvSubtree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transform: scale(0.99);
+  transform-origin: top left;
+}
+
+.tvBox {
+  display: inline-block;
+  padding: 5px 8px;
+  border-radius: 9px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.1;
+  min-width: 34px;
+  text-align: center;
+}
+
+.tvMax {
+  outline: 1px solid rgba(120, 220, 255, 0.25);
+}
+
+.tvMin {
+  outline: 1px solid rgba(255, 160, 120, 0.25);
+}
+
+.tvLeaf {
+  outline: 1px solid rgba(140, 255, 160, 0.18);
+}
+
+.tvDown {
+  width: 2px;
+  height: 12px;
+  background: rgba(255,255,255,0.12);
+}
+
+.tvChildrenWrap {
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tvH {
+  height: 2px;
+  width: 100%;
+  background: rgba(255,255,255,0.12);
+  margin-bottom: 12px;
+}
+
+.tvRow {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  align-items: flex-start;
+  position: relative;
+}
+
+.tvChild {
+  position: relative;
+}
+
+.tvChild::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 12px;
+  background: rgba(255,255,255,0.12);
+}
+#questionRender {
+  display: block;
+}
+
+#questionRender.hidden {
+  display: none;
+}
+
+.cspCard {
+  background: #0b1220;
+  border: 1px solid #243042;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.cspTitle {
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.cspSection {
+  margin-top: 10px;
+}
+
+.cspLabel {
+  font-weight: 700;
+  opacity: 0.9;
+  margin-bottom: 6px;
+}
+
+.cspText {
+  opacity: 0.95;
+  line-height: 1.35;
+  font-family: inherit;
+}
+
+.cspFormatText {
+  white-space: pre-line;
+  word-break: break-word;
+  font-family: inherit;
+}
+
+.cspChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cspGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+@media (max-width: 900px) {
+  .cspGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cspList {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.cspList li {
+  margin: 6px 0;
+}
+
+.cspRaw {
+  margin-top: 10px;
+}
+
+.cspRaw summary {
+  cursor: pointer;
+  user-select: none;
+  opacity: 0.9;
+}
+
+.cspRaw pre {
+  margin-top: 8px;
+  max-height: 260px;
+  overflow: auto;
+  border: 1px solid #243042;
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  white-space: pre-wrap;
+  word-break: break-word;
+}

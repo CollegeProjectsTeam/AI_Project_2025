@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block title %}SmarTest{% endblock %}
+
+{% block content %}
+  <header class="hero">
+    <div class="heroTitle">
+      <h1>SmarTest</h1>
+      <span class="pill">AI · Exam Style</span>
+    </div>
+    <p>Generate questions by chapter/subchapter and evaluate answers in a web UI.</p>
+  </header>
+
+  <section class="homeStack">
+    <a class="card linkcard" href="/question">
+      <div class="cardHead">
+        <div class="iconBubble">Q</div>
+        <div>
+          <h2>Generate question</h2>
+          <p>Pick one subchapter and generate one question at a time.</p>
+        </div>
+      </div>
+      <div class="cardFoot">
+        <span class="cta">Start</span>
+        <span class="hint">JSON-only API</span>
+      </div>
+    </a>
+
+    <a class="card linkcard disabled" href="/test" aria-disabled="true">
+      <div class="cardHead">
+        <div class="iconBubble">T</div>
+        <div>
+          <h2>Generate test</h2>
+          <p>Placeholder for later.</p>
+        </div>
+      </div>
+      <div class="cardFoot">
+        <span class="cta">Soon</span>
+        <span class="hint">coming next</span>
+      </div>
+    </a>
+  </section>
+
+  <section class="card infoCard">
+    <h3>How it works</h3>
+    <div class="steps">
+      <div class="step"><span class="stepNum">1</span><span>Select one subchapter</span></div>
+      <div class="step"><span class="stepNum">2</span><span>Set the options for that topic</span></div>
+      <div class="step"><span class="stepNum">3</span><span>Generate, answer, and check</span></div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="/js/app.js"></script>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block title %}SmarTest · Generate question{% endblock %}
+
+{% block content %}
+  {% include "partials/question/topbar.html" %}
+
+  <section class="panelGrid">
+    {% include "partials/question/catalog_panel.html" %}
+    {% include "partials/question/question_panel.html" %}
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="/js/pages/question.js"></script>
+{% endblock %}

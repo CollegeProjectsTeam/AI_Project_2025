@@ -1,0 +1,17 @@
+/* 01-typography.css */
+h1, h2, h3 { margin: 0; }
+
+.subtle { margin: 4px 0 0; color: #a5b4fc; font-size: 0.95rem; }
+.muted { color: #a5b4fc; margin-bottom: 12px; }
+.mutedSmall { color: #a5b4fc; font-size: .8rem; }
+.hint { color: #a5b4fc; font-size: .9rem; }
+
+.hidden { display: none !important; }
+
+.divider {
+  height: 1px;
+  background: #243042;
+  margin: 16px 0;
+  opacity: 0.8;
+  width: 100%;
+}

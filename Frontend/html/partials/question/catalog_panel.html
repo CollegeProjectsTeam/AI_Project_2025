@@ -1,0 +1,36 @@
+<section class="card">
+  <div class="row rowTight">
+    <label class="field grow">
+      Search
+      <input id="search" type="text" placeholder="e.g. Nash, N-Queens, Game Theory" />
+    </label>
+    <button id="btnExpandAll" class="btn">Collapse all</button>
+    <button id="btnClear" class="btn danger">Clear</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="row rowTight">
+    <h2 class="sectionTitle">Catalog</h2>
+    <div class="grow"></div>
+    <div id="selChip" class="chips"></div>
+  </div>
+
+  <div id="catalog" class="catalog skeleton">Loading...</div>
+
+  <div class="divider"></div>
+
+  <h2 class="sectionTitle">Options</h2>
+  <div id="options" class="options"></div>
+
+  <div class="divider"></div>
+
+  <div id="err" class="errorBox hidden"></div>
+
+  <div class="row rowTight">
+    <button id="btnGenerate" class="btn primary" disabled>
+      <span class="btnText">Generate</span>
+      <span class="spinner" aria-hidden="true"></span>
+    </button>
+  </div>
+</section>

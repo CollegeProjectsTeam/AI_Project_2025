@@ -1,0 +1,10 @@
+/* 00-reset.css */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: Arial, sans-serif;
+  background: #0b1220;
+  color: #e5e7eb;
+  margin: 0;
+  line-height: 1.5;
+}

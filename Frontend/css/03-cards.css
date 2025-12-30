@@ -1,0 +1,94 @@
+.card {
+  background: #111827;
+  border: 1px solid #243042;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+}
+
+.linkcard {
+  text-decoration: none;
+  color: inherit;
+  transition: transform .12s ease, border-color .12s ease;
+  justify-content: space-between;
+
+  min-width: 0;
+}
+
+.linkcard:hover {
+  transform: translateY(-2px);
+  border-color: #3b82f6;
+}
+
+.linkcard.disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.cardHead {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+
+  min-width: 0;
+}
+
+.iconBubble {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #0b1220;
+  border: 1px solid #243042;
+  color: #c7d2fe;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.cardHead h2 {
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.cardHead p {
+  margin: 0;
+  color: #a5b4fc;
+  line-height: 1.4;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.cardFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  width: 100%;
+
+  min-width: 0;
+  gap: 12px;
+}
+
+.cta {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #0b1220;
+  border: 1px solid #243042;
+  color: #e5e7eb;
+  font-size: 0.85rem;
+
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
