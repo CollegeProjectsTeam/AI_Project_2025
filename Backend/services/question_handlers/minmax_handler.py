@@ -17,7 +17,8 @@ class MinMaxQuestionHandler:
 
     @staticmethod
     def can_handle(ch_num: int, sub_num: int) -> bool:
-        return (ch_num, sub_num) == (2, 4)
+        # ATENTIE: in FE ai MinMax la (2,2)
+        return (ch_num, sub_num) == (2, 2)
 
     def generate(
         self,
@@ -26,10 +27,28 @@ class MinMaxQuestionHandler:
         template_text: str,
         options: Dict[str, Any],
     ) -> Dict[str, Any]:
-        depth = clamp_int(options.get("depth"), 1, 6, 3)
-        branching = clamp_int(options.get("branching"), 2, 4, 2)
+        options = options or {}
+        difficulty = str(options.get("difficulty") or "medium").strip().lower()
+        if difficulty not in ("easy", "medium", "hard"):
+            difficulty = "medium"
+
+        # reguli backend (oglindesc FE)
+        rules = {
+            "easy": {"depth": (1, 3, 2), "branching": (2, 3, 2)},
+            "medium": {"depth": (1, 5, 3), "branching": (2, 4, 2)},
+            "hard": {"depth": (1, 6, 4), "branching": (2, 4, 3)},
+        }
+        r = rules.get(difficulty, rules["medium"])
+
+        depth = clamp_int(options.get("depth"), r["depth"][0], r["depth"][1], r["depth"][2])
+        branching = clamp_int(options.get("branching"), r["branching"][0], r["branching"][1], r["branching"][2])
+
         root_player = str(options.get("root_player") or "MAX").strip().upper()
         if root_player not in ("MAX", "MIN"):
+            root_player = "MAX"
+
+        # optional: pe easy fortam MAX
+        if difficulty == "easy":
             root_player = "MAX"
 
         instance = MinMaxInstanceGenerator.generate(
@@ -47,13 +66,23 @@ class MinMaxQuestionHandler:
             log.warn("MinMax solver failed", {"error": solved.get("error")})
             return {"ok": False, "error": "minmax solver failed"}
 
-        correct_answer = f"{int(solved['root_value'])} {int(solved['leaf_visits'])}"
+        root_value = int(solved["root_value"])
+        leaf_visits = int(solved["leaf_visits"])
+
+        # easy: doar valoarea radacinii (conform template-urilor easy)
+        if difficulty == "easy":
+            correct_answer = f"{root_value}"
+            answer_format = "root_value"
+        else:
+            correct_answer = f"{root_value} {leaf_visits}"
+            answer_format = "root_value leaf_visits"
 
         tree = instance.get("tree")
 
         meta = {
             "type": "minmax",
-            "answer_format": "root_value leaf_visits",
+            "difficulty": difficulty,
+            "answer_format": answer_format,
             "depth": depth,
             "branching": branching,
             "root_player": root_player,
@@ -64,7 +93,7 @@ class MinMaxQuestionHandler:
 
         log.info(
             "MinMax question generated",
-            ctx={"depth": depth, "branching": branching, "root_player": root_player},
+            ctx={"difficulty": difficulty, "depth": depth, "branching": branching, "root_player": root_player},
         )
 
         return {

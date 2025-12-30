@@ -3,6 +3,9 @@ import { setHidden } from "../../ui.js";
 function ensureAnswerOptionsUI(dom) {
   if (dom.answerOptionsWrap && dom.answerOptions) return;
 
+  const parent = dom.questionText?.parentElement;
+  if (!parent) return;
+
   const wrap = document.createElement("div");
   wrap.id = "answerOptionsWrap";
   wrap.className = "hidden";
@@ -22,7 +25,7 @@ function ensureAnswerOptionsUI(dom) {
   wrap.appendChild(title);
   wrap.appendChild(chips);
 
-  dom.questionText.parentElement.insertBefore(wrap, dom.questionText.nextSibling);
+  parent.insertBefore(wrap, dom.questionText.nextSibling);
 
   dom.answerOptionsWrap = wrap;
   dom.answerOptions = chips;
@@ -30,6 +33,9 @@ function ensureAnswerOptionsUI(dom) {
 
 export function renderAnswerOptions(dom, meta) {
   ensureAnswerOptionsUI(dom);
+
+  // daca UI-ul nu a putut fi creat, nu facem nimic
+  if (!dom.answerOptionsWrap || !dom.answerOptions) return;
 
   dom.answerOptions.innerHTML = "";
   setHidden(dom.answerOptionsWrap, true);
@@ -48,11 +54,14 @@ export function renderAnswerOptions(dom, meta) {
     btn.type = "button";
     btn.className = "chip";
     btn.textContent = `${i + 1}. ${label}`;
-    btn.title = key;
+    btn.title = String(key ?? "");
+
     btn.addEventListener("click", () => {
-      dom.answer.value = key;
+      if (!dom.answer) return;
+      dom.answer.value = String(key ?? "");
       dom.answer.focus();
     });
+
     dom.answerOptions.appendChild(btn);
   });
 }
