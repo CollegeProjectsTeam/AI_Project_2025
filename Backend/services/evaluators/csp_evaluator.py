@@ -11,7 +11,6 @@ log = Logger("Eval.CSP")
 
 Assignment = Dict[str, int]
 
-
 _NONE_TOKENS = {"none", "no", "nu", "n/a"}
 
 
@@ -83,6 +82,7 @@ def _parse_assignment(answer: Any) -> Tuple[Optional[Assignment], bool]:
 
     return None, False
 
+
 def _read_expected_from_meta_solution(meta: Dict[str, Any]) -> Tuple[Optional[bool], Optional[Assignment]]:
     sol = meta.get("solution")
     if not isinstance(sol, dict):
@@ -116,7 +116,7 @@ def _read_expected_from_correct_answer(corr: Any) -> Tuple[Optional[bool], Optio
         return None, None
 
     try:
-        obj = json.loads(s.replace("'", '"'))  # tolerate python dict string
+        obj = json.loads(s.replace("'", '"'))
     except Exception:
         return None, None
 
@@ -230,7 +230,11 @@ def _build_explanation(
     return "\n".join(lines)
 
 
-def _score(exp_found: bool, exp_solution: Optional[Assignment], user_asg: Optional[Assignment]) -> Tuple[bool, float]:
+def _score(
+    exp_found: bool,
+    exp_solution: Optional[Assignment],
+    user_asg: Optional[Assignment],
+) -> Tuple[bool, float]:
     if not exp_found:
         correct = user_asg is None
         return correct, (100.0 if correct else 0.0)
@@ -261,18 +265,29 @@ def evaluate_csp(item: Any, answer: Any, reveal: bool = False) -> Dict[str, Any]
 
     correct, score = _score(bool(exp_found), exp_solution, user_asg)
 
-    resp: Dict[str, Any] = {"ok": True, "correct": correct, "score": score}
+    explanation = _build_explanation(
+        expected_found=bool(exp_found),
+        expected_solution=exp_solution,
+        user_assignment=user_asg,
+    )
+    explanation_lines = explanation.splitlines()
 
+    resp: Dict[str, Any] = {
+        "ok": True,
+        "correct": correct,
+        "score": score,
+
+        # IMPORTANT: always present so FE can show explanation even when correct
+        "explanation": explanation,
+        "explanation_lines": explanation_lines,
+    }
+
+    # Keep solution disclosure rule: only show answers when reveal OR incorrect
     if reveal or not correct:
         resp["correct_answer"] = {"found": exp_found, "solution": exp_solution}
         resp["correct_answer_text"] = "none" if not exp_found else _fmt_asg_text(exp_solution)
         resp["received"] = {"assignment": user_asg}
         resp["received_text"] = "none" if user_asg is None else _fmt_asg_text(user_asg)
-        resp["explanation"] = _build_explanation(
-            expected_found=bool(exp_found),
-            expected_solution=exp_solution,
-            user_assignment=user_asg,
-        )
 
     log.info(
         "CSP evaluated",
