@@ -5,15 +5,11 @@ DO $$
 DECLARE
     -- Search Strategies
     chapter_id1 INT;
-    nqueens_sub_id INT;
-    graph_sub_id INT;
-    knights_sub_id INT;
-    hanoi_sub_id INT;
+    search_sub_id INT;
 
-    nqueens_template_id INT;
-    graph_template_id INT;
-    knights_template_id INT;
-    hanoi_template_id INT;
+    ss_easy_template_id INT;
+    ss_medium_template_id INT;
+    ss_hard_template_id INT;
 
     -- Game Theory
     chapter_id2 INT;
@@ -41,59 +37,54 @@ BEGIN
     RETURNING id INTO chapter_id1;
 
     INSERT INTO subchapters (chapter_id, subchapter_number, subchapter_name)
-    VALUES (chapter_id1, 1, 'N-Queens')
-    RETURNING id INTO nqueens_sub_id;
+    VALUES (chapter_id1, 1, 'Search Strategies')
+    RETURNING id INTO search_sub_id;
 
-    INSERT INTO subchapters (chapter_id, subchapter_number, subchapter_name)
-    VALUES (chapter_id1, 2, 'Graph Coloring')
-    RETURNING id INTO graph_sub_id;
-
-    INSERT INTO subchapters (chapter_id, subchapter_number, subchapter_name)
-    VALUES (chapter_id1, 3, 'Knights Tour')
-    RETURNING id INTO knights_sub_id;
-
-    INSERT INTO subchapters (chapter_id, subchapter_number, subchapter_name)
-    VALUES (chapter_id1, 4, 'Generalized Hanoi')
-    RETURNING id INTO hanoi_sub_id;
-
+       -- Search Strategies EASY
     INSERT INTO question_templates (subchapter_id, template_text, difficulty)
     VALUES (
-        nqueens_sub_id,
-        'Pentru problema {problem_name} cu instanta {instance}, care este cea mai potrivita strategie predata la curs pentru a o rezolva?',
-        'medium'
-    ) RETURNING id INTO nqueens_template_id;
-
-    INSERT INTO question_templates (subchapter_id, template_text, difficulty)
-    VALUES (
-        graph_sub_id,
-        'Pentru problema {problem_name} cu instanta {instance}, care este cea mai potrivita strategie predata la curs pentru a o rezolva?',
-        'medium'
-    ) RETURNING id INTO graph_template_id;
-
-    INSERT INTO question_templates (subchapter_id, template_text, difficulty)
-    VALUES (
-        knights_sub_id,
-        'Pentru problema {problem_name} cu instanta {instance}, care este cea mai potrivita strategie predata la curs pentru a o rezolva?',
-        'medium'
-    ) RETURNING id INTO knights_template_id;
-
-    INSERT INTO question_templates (subchapter_id, template_text, difficulty)
-    VALUES (
-        hanoi_sub_id,
-        'Pentru problema {problem_name} cu instanta {instance}, care este cea mai potrivita strategie predata la curs pentru a o rezolva?',
-        'medium'
-    ) RETURNING id INTO hanoi_template_id;
+        search_sub_id,
+        'Pentru problema {problem_name} cu instanta {instance}, alegeti strategia potrivita.
+         Optiuni: {options}',
+        'easy'
+    ) RETURNING id INTO ss_easy_template_id;
 
     INSERT INTO template_variables (template_id, variable_name, data_type)
     VALUES
-        (nqueens_template_id, 'problem_name', 'string'),
-        (nqueens_template_id, 'instance', 'JSON'),
-        (graph_template_id, 'problem_name', 'string'),
-        (graph_template_id, 'instance', 'JSON'),
-        (knights_template_id, 'problem_name', 'string'),
-        (knights_template_id, 'instance', 'JSON'),
-        (hanoi_template_id, 'problem_name', 'string'),
-        (hanoi_template_id, 'instance', 'JSON');
+        (ss_easy_template_id, 'problem_name', 'string'),
+        (ss_easy_template_id, 'instance', 'JSON'),
+        (ss_easy_template_id, 'options', 'JSON');
+
+
+    -- Search Strategies MEDIUM
+    INSERT INTO question_templates (subchapter_id, template_text, difficulty)
+    VALUES (
+        search_sub_id,
+        'Pentru problema {problem_name} cu instanta {instance}, alegeti cea mai potrivita strategie predata la curs.
+         Optiuni: {options}',
+        'medium'
+    ) RETURNING id INTO ss_medium_template_id;
+
+    INSERT INTO template_variables (template_id, variable_name, data_type)
+    VALUES
+        (ss_medium_template_id, 'problem_name', 'string'),
+        (ss_medium_template_id, 'instance', 'JSON'),
+        (ss_medium_template_id, 'options', 'JSON');
+
+    -- Search Strategies HARD
+    INSERT INTO question_templates (subchapter_id, template_text, difficulty)
+    VALUES (
+        search_sub_id,
+        'Pentru problema {problem_name} cu instanta {instance}, alegeti strategia optima dintre optiuni.
+         Optiuni: {options}',
+        'hard'
+    ) RETURNING id INTO ss_hard_template_id;
+
+    INSERT INTO template_variables (template_id, variable_name, data_type)
+    VALUES
+        (ss_hard_template_id, 'problem_name', 'string'),
+        (ss_hard_template_id, 'instance', 'JSON'),
+        (ss_hard_template_id, 'options', 'JSON');
 
     ------------------------------------------------------
     -- CHAPTER 2 – Game Theory
