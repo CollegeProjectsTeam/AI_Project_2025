@@ -34,17 +34,19 @@ function ensureAnswerOptionsUI(dom) {
 export function renderAnswerOptions(dom, meta) {
   ensureAnswerOptionsUI(dom);
 
-  // daca UI-ul nu a putut fi creat, nu facem nimic
   if (!dom.answerOptionsWrap || !dom.answerOptions) return;
 
   dom.answerOptions.innerHTML = "";
   setHidden(dom.answerOptionsWrap, true);
 
   const labels = meta?.answer_options;
-  const keys = meta?.answer_option_keys;
+  let keys = meta?.answer_option_keys;
 
-  if (!Array.isArray(labels) || !Array.isArray(keys)) return;
-  if (labels.length === 0 || labels.length !== keys.length) return;
+  if (!Array.isArray(labels) || labels.length === 0) return;
+
+  if (!Array.isArray(keys) || keys.length !== labels.length) {
+    keys = labels;
+  }
 
   setHidden(dom.answerOptionsWrap, false);
 

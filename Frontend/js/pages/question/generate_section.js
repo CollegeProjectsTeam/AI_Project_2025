@@ -7,6 +7,7 @@ import { lockJsonSection } from "./json_section.js";
 import { lockExplainSection } from "./explain_section.js";
 import { renderGameTree } from "./tree_view.js";
 import { renderCspQuestion } from "./csp_render.js";
+import { tryRenderSearchStrategies } from "./search_strategies_render.js";
 
 export function initGenerateSection({ dom, state, catalogApi }) {
   function clearTree() {
@@ -27,6 +28,11 @@ export function initGenerateSection({ dom, state, catalogApi }) {
 
     if (!renderRoot || !textRoot) return;
 
+    // reset roots
+    renderRoot.innerHTML = "";
+    textRoot.textContent = "";
+
+    // 1) CSP custom render
     if (isCsp(q)) {
       textRoot.classList.add("hidden");
       renderRoot.classList.remove("hidden");
@@ -34,6 +40,12 @@ export function initGenerateSection({ dom, state, catalogApi }) {
       return;
     }
 
+    // 2) Search Strategies custom render (NQueens / KnightsTour / GraphColoring / Hanoi)
+    // tryRenderSearchStrategies controls visibility itself
+    const rendered = tryRenderSearchStrategies(dom, q);
+    if (rendered) return;
+
+    // 3) fallback: plain question text
     renderRoot.classList.add("hidden");
     textRoot.classList.remove("hidden");
     textRoot.textContent = q?.question_text || "";
