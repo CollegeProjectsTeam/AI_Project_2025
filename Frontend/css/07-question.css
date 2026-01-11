@@ -255,3 +255,213 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* Search Strategies render */
+.ssCard {
+  background: #0b1220;
+  border: 1px solid #243042;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.ssHead {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.ssTitle {
+  font-weight: 900;
+  font-size: 1.05rem;
+  margin-bottom: 2px;
+}
+
+.ssSubtitle {
+  opacity: 0.92;
+  line-height: 1.35;
+}
+
+.ssMeta {
+  opacity: 0.85;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.ssBody {
+  margin-top: 10px;
+}
+
+.ssInfoRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.ssPill {
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+  opacity: 0.95;
+}
+
+/* Board grid (N-Queens + Knight) */
+.ssBoard {
+  --n: 8;
+  display: grid;
+  grid-template-columns: repeat(var(--n), 34px);
+  gap: 2px;
+  width: max-content;
+  padding: 10px;
+  border: 1px solid #243042;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.02);
+  overflow: auto;
+  max-width: 100%;
+}
+
+.ssCell {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.ssCell.dark { background: rgba(255,255,255,0.06); }
+.ssCell.light { background: rgba(255,255,255,0.02); }
+
+.ssCell.start {
+  outline: 2px solid rgba(59,130,246,0.55);
+}
+
+.ssQueen, .ssKnight {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* Graph Coloring */
+.gcGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.gcRow {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.02);
+}
+
+.gcNode {
+  font-weight: 800;
+  opacity: 0.95;
+}
+
+.gcAdj {
+  opacity: 0.92;
+  overflow-wrap: anywhere;
+}
+
+.gcEdges {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.02);
+}
+
+.gcEdgesTitle {
+  font-weight: 800;
+  margin-bottom: 6px;
+  opacity: 0.95;
+}
+
+.gcEdgesText {
+  opacity: 0.92;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}
+
+/* Hanoi */
+.hanoiPegs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.hanoiPeg {
+  min-width: 140px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.02);
+}
+
+.hanoiPeg.goal {
+  outline: 2px solid rgba(34,197,94,0.35);
+}
+
+.hanoiPegTitle {
+  font-weight: 800;
+  margin-bottom: 8px;
+  opacity: 0.95;
+}
+
+.hanoiStack {
+  display: flex;
+  flex-direction: column-reverse; /* bottom appears at bottom */
+  gap: 6px;
+  min-height: 120px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.hanoiDisc {
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  opacity: 0.95;
+}
+
+/* Raw instance inside card */
+.ssRaw {
+  margin-top: 10px;
+}
+
+.ssRaw summary {
+  cursor: pointer;
+  user-select: none;
+  opacity: 0.9;
+}
+
+.ssRawPre {
+  margin-top: 8px;
+  max-height: 260px;
+  overflow: auto;
+  border: 1px solid #243042;
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}

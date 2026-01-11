@@ -1,4 +1,4 @@
-import { renderNQueensOptions, collectNQueensOptions } from "./options/nqueens_options.js";
+import { renderSearchStrategiesOptions,collectSearchStrategiesOptions } from "./options/search_strategies_options.js";
 import { renderNashOptions, collectNashOptions } from "./options/nash_options.js";
 import { renderMinMaxOptions, collectMinMaxOptions } from "./options/minmax_options.js";
 import { renderCspOptions, collectCspOptions } from "./options/csp_options.js";
@@ -14,11 +14,11 @@ export function renderOptions(root, selection) {
   const ch = selection.chapter_number;
   const sc = selection.subchapter_number;
 
-  // Chapter 1
-  if (ch === 1 && sc === 1) {
-    renderNQueensOptions(root);
-    return;
-  }
+    // Chapter 1
+    if (ch === 1 && sc === 1) {
+      renderSearchStrategiesOptions(root);
+      return;
+    }
 
   // Chapter 2
   if (ch === 2 && sc === 1) {
@@ -47,7 +47,7 @@ export function collectOptions(selection) {
   const sc = selection.subchapter_number;
 
   // Chapter 1
-  if (ch === 1 && sc === 1) return collectNQueensOptions();
+  if (ch === 1 && sc === 1) return collectSearchStrategiesOptions();
 
   // Chapter 2
   if (ch === 2 && sc === 1) return collectNashOptions();

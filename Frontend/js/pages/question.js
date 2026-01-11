@@ -1,6 +1,5 @@
 import { dom } from "./question/dom.js";
 import { state } from "./question/state.js";
-
 import { initCatalogSection } from "./question/catalog_section.js";
 import { initGenerateSection } from "./question/generate_section.js";
 import { initCheckSection } from "./question/check_section.js";

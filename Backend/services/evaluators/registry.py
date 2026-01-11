@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict
 
-from Backend.services.evaluators.nqueens_evaluator import evaluate_nqueens
+from Backend.services.evaluators.search_strategies_evaluator import evaluate_search_strategies
 
 from Backend.services.evaluators.nash_evaluator import evaluate_nash
 from Backend.services.evaluators.nash_pure_evaluator import evaluate_nash_pure
@@ -15,7 +15,10 @@ from Backend.services.evaluators.csp_evaluator import evaluate_csp
 EvaluatorFn = Callable[..., Dict[str, Any]]
 
 EVALUATORS: Dict[str, EvaluatorFn] = {
-    "nqueens": evaluate_nqueens,
+    "nqueens": evaluate_search_strategies,
+    "graph_coloring": evaluate_search_strategies,
+    "knights_tour": evaluate_search_strategies,
+    "generalized_hanoi": evaluate_search_strategies,
 
     "nash": evaluate_nash,
 

@@ -44,47 +44,41 @@ BEGIN
     INSERT INTO question_templates (subchapter_id, template_text, difficulty)
     VALUES (
         search_sub_id,
-        'Pentru problema {problem_name} cu instanta {instance}, alegeti strategia potrivita.
-         Optiuni: {options}',
+        'Pentru problema {problem_name} cu instanta {instance}, alegeti strategia potrivita.',
         'easy'
     ) RETURNING id INTO ss_easy_template_id;
 
     INSERT INTO template_variables (template_id, variable_name, data_type)
     VALUES
         (ss_easy_template_id, 'problem_name', 'string'),
-        (ss_easy_template_id, 'instance', 'JSON'),
-        (ss_easy_template_id, 'options', 'JSON');
+        (ss_easy_template_id, 'instance', 'JSON');
 
 
     -- Search Strategies MEDIUM
     INSERT INTO question_templates (subchapter_id, template_text, difficulty)
     VALUES (
         search_sub_id,
-        'Pentru problema {problem_name} cu instanta {instance}, alegeti cea mai potrivita strategie predata la curs.
-         Optiuni: {options}',
+        'Pentru problema {problem_name} cu instanta {instance}, alegeti cea mai potrivita strategie predata la curs.',
         'medium'
     ) RETURNING id INTO ss_medium_template_id;
 
     INSERT INTO template_variables (template_id, variable_name, data_type)
     VALUES
         (ss_medium_template_id, 'problem_name', 'string'),
-        (ss_medium_template_id, 'instance', 'JSON'),
-        (ss_medium_template_id, 'options', 'JSON');
+        (ss_medium_template_id, 'instance', 'JSON');
 
     -- Search Strategies HARD
     INSERT INTO question_templates (subchapter_id, template_text, difficulty)
     VALUES (
         search_sub_id,
-        'Pentru problema {problem_name} cu instanta {instance}, alegeti strategia optima dintre optiuni.
-         Optiuni: {options}',
+        'Pentru problema {problem_name} cu instanta {instance}, alegeti strategia optima dintre optiuni.',
         'hard'
     ) RETURNING id INTO ss_hard_template_id;
 
     INSERT INTO template_variables (template_id, variable_name, data_type)
     VALUES
         (ss_hard_template_id, 'problem_name', 'string'),
-        (ss_hard_template_id, 'instance', 'JSON'),
-        (ss_hard_template_id, 'options', 'JSON');
+        (ss_hard_template_id, 'instance', 'JSON');
 
     ------------------------------------------------------
     -- CHAPTER 2 – Game Theory

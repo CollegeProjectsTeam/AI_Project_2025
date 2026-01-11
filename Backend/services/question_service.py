@@ -12,11 +12,7 @@ handlers = build_handlers(qgen)
 log = Logger("QuestionService")
 
 
-def _pick_difficulty(ch_num: int, options: Dict[str, Any]) -> str | None:
-    # Chapter 1: no difficulty in FE (for now)
-    if ch_num == 1:
-        return None
-
+def _pick_difficulty(options: Dict[str, Any]) -> str:
     d = str((options or {}).get("difficulty") or "medium").strip().lower()
     if d in ("easy", "medium", "hard"):
         return d
@@ -28,7 +24,7 @@ def generate_question(payload: Dict[str, Any]) -> Dict[str, Any]:
     sub_num = int(payload.get("subchapter_number") or 0)
     options = payload.get("options") or {}
 
-    difficulty = _pick_difficulty(ch_num, options)
+    difficulty = _pick_difficulty(options)
 
     log.info(
         "generate_question called",
