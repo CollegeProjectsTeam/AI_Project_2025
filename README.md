@@ -48,9 +48,9 @@ The project uses a **`.env` file** to store database and configuration settings.
 Create a `.env` file in the project root with the following content:
 
 ```env
-DATABASE_NAME= SmarTest
-HOST= localhost
-PORT= 5432
-USER= postgres
-PASSWORD= your_password
+DATABASE_NAME=SmarTest
+HOST=localhost
+PORT=5432
+USER=postgres
+PASSWORD=your_password
 ```
