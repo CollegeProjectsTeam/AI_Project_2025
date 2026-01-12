@@ -2,8 +2,8 @@
 ../.env
 .venv/
 .idea/
-.env
-./.env
+Backend/.env
+Backend/.env
 
 # Python cache and compiled files (ignore everywhere)
 **/__pycache__/
