@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import os
-from flask import jsonify, request, send_from_directory, render_template
+from flask import Blueprint, jsonify, request, send_from_directory, render_template
 
 from Backend.services.logging_service import Logger
 from Backend.persistence.services.catalog_service import get_catalog
 from Backend.services.question_service import generate_question
 from Backend.services.evaluation_service import evaluate_answer
+from Backend.services.test_service import generate_test, fetch_test_details
 
+router = Blueprint('router', __name__)
 log = Logger("Router")
 
 def _safe_payload() -> dict:
@@ -129,5 +131,74 @@ def register_routes(app):
     def api_test():
         log.warn("API test called (not implemented)")
         return jsonify({"ok": False, "error": "not implemented"}), 501
+
+    # Adding new routes for SmarTest logic
+    @app.post("/api/test/generate")
+    def api_generate_test():
+        payload = _safe_payload()
+        if not isinstance(payload, dict):
+            log.error("Invalid payload format", {"payload": payload})
+            return jsonify({"ok": False, "error": "Invalid payload format. Expected a JSON object."}), 400
+
+        log.info("API generate test", {"payload": payload})
+
+        try:
+            data = generate_test(payload)
+        except Exception as e:
+            log.error("generate_test crashed", exc=e)
+            return jsonify({"ok": False, "error": "internal server error"}), 500
+
+        if not data.get("ok"):
+            code = (data.get("error_code") or "").upper()
+            status = 400 if code == "BAD_INPUT" else 500
+            log.warn("generate_test returned error", {"error": data.get("error"), "error_code": code, "status": status})
+            return jsonify(data), status
+
+        log.ok("Test generated", {"test_id": data.get("test_id")})
+        return jsonify(data)
+
+    @app.get("/api/test/details")
+    def api_fetch_test_details():
+        test_id = request.args.get("test_id")
+        log.info("API fetch test details", {"test_id": test_id})
+
+        try:
+            data = fetch_test_details(test_id)
+        except Exception as e:
+            log.error("fetch_test_details crashed", exc=e)
+            return jsonify({"ok": False, "error": "internal server error"}), 500
+
+        if not data.get("ok"):
+            log.warn("fetch_test_details returned error", {"error": data.get("error")})
+            return jsonify(data), 400
+
+        log.ok("Test details fetched", {"test_id": test_id})
+        return jsonify(data)
+
+    @app.get("/api/subchapters")
+    def fetch_subchapters():
+        try:
+            catalog = get_catalog()
+            out = []
+
+            for ch in catalog.get("chapters", []):
+                ch_no = ch.get("chapter_number")
+                for sub in ch.get("subchapters", []):
+                    out.append({
+                        "chapter_number": ch_no,
+                        "subchapter_number": sub.get("subchapter_number"),
+                        "name": sub.get("subchapter_name"),
+                        # id “compozit” pentru checkbox:
+                        "id": f"{ch_no}:{sub.get('subchapter_number')}",
+                    })
+
+            return jsonify({"ok": True, "subchapters": out})
+        except Exception as e:
+            log.error("Error fetching subchapters", exc=e)
+            return jsonify({"ok": False, "error": "Internal server error"}), 500
+
+    @app.post("/api/generate-test")
+    def api_generate_test_alias():
+        return api_generate_test()
 
     log.ok("Routes registered", {"count": len(app.url_map._rules)})

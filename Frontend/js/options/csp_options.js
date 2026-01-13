@@ -188,32 +188,31 @@ export function renderCspOptions(root) {
   diffEl?.addEventListener("change", () => applyAll(diffEl.value));
 }
 
-export function collectCspOptions() {
-  const difficulty = String(document.getElementById("optCspDifficulty")?.value || "medium");
-  const inference = String(document.getElementById("optCspInference")?.value || "FC");
-  let consistency = String(document.getElementById("optCspConsistency")?.value || "NONE");
-  const var_heuristic = String(document.getElementById("optCspVarHeuristic")?.value || "NONE");
-  let value_heuristic = String(document.getElementById("optCspValueHeuristic")?.value || "NONE");
+export function collectCspOptions(isTestGeneration = false) {
+  const diffEl = document.getElementById("optCspDifficulty");
+  const inferenceEl = document.getElementById("optCspInference");
+  const consistencyEl = document.getElementById("optCspConsistency");
+  const varHEl = document.getElementById("optCspVarHeuristic");
+  const valHEl = document.getElementById("optCspValueHeuristic");
 
-  if (difficulty === "easy") {
-    consistency = "NONE";
-    value_heuristic = "NONE";
+  const varsEl = document.getElementById("optCspNumVars");
+  const consEl = document.getElementById("optCspNumConstraints");
+  const domMinEl = document.getElementById("optCspDomMin");
+  const domMaxEl = document.getElementById("optCspDomMax");
+
+  function randomChoice(options) {
+    return options[Math.floor(Math.random() * options.length)];
   }
 
-  const num_vars = Number(document.getElementById("optCspNumVars")?.value || 3);
-  const num_constraints = Number(document.getElementById("optCspNumConstraints")?.value || 3);
-  const domain_min_size = Number(document.getElementById("optCspDomMin")?.value || 2);
-  const domain_max_size = Number(document.getElementById("optCspDomMax")?.value || 4);
-
   return {
-    difficulty,
-    inference,
-    consistency,
-    var_heuristic,
-    value_heuristic,
-    num_vars,
-    num_constraints,
-    domain_min_size,
-    domain_max_size,
+    difficulty: diffEl?.value || "medium",
+    inference: isTestGeneration ? randomChoice(["FC", "NONE"]) : inferenceEl?.value || "NONE",
+    consistency: isTestGeneration ? randomChoice(["NONE", "AC3"]) : consistencyEl?.value || "NONE",
+    var_heuristic: isTestGeneration ? randomChoice(["NONE", "MRV"]) : varHEl?.value || "NONE",
+    value_heuristic: isTestGeneration ? randomChoice(["LCV", "NONE"]) : valHEl?.value || "NONE",
+    num_vars: clampNum(varsEl?.value, 2, 8, 3),
+    num_constraints: clampNum(consEl?.value, 1, 20, 3),
+    domain_min: clampNum(domMinEl?.value, 1, 10, 2),
+    domain_max: clampNum(domMaxEl?.value, 1, 12, 4),
   };
 }
