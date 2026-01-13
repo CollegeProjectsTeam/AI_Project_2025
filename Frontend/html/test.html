@@ -1,5 +1,4 @@
 {% extends "layout.html" %}
-
 {% block title %}SmarTest · Generate test{% endblock %}
 
 {% block content %}
@@ -14,7 +13,7 @@
   <section class="card">
     <form id="generate-test-form">
       <label for="num-questions">Number of Questions:</label>
-      <input type="number" id="num-questions" name="num_questions" min="1" required>
+      <input type="number" id="num-questions" name="num_questions" min="1" required value="5">
 
       <label for="difficulty">Difficulty:</label>
       <select id="difficulty" name="difficulty">
@@ -23,85 +22,14 @@
         <option value="hard">Hard</option>
       </select>
 
-      <label for="subchapter-container">Subchapters:</label>
+      <label>Subchapters:</label>
       <div id="subchapter-container"></div>
 
       <button type="submit" class="btn">Generate Test</button>
     </form>
   </section>
+{% endblock %}
 
-  <script>
-    document.getElementById('generate-test-form').addEventListener('submit', async (event) => {
-      event.preventDefault();
-
-      const formData = new FormData(event.target);
-      const payload = {
-        num_questions: formData.get('num_questions'),
-        difficulty: formData.get('difficulty'),
-        subchapters: formData.getAll('subchapters')
-      };
-
-      try {
-        const response = await fetch('/api/generate-test', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          console.error("Generate test failed:", err);
-          throw new Error(err.error || "Failed to generate test");
-        }
-
-        const result = await response.json();
-        console.log('Generated Test:', result);
-        alert('Test generated successfully! Check the console for details.');
-      } catch (error) {
-        console.error(error);
-        alert('An error occurred while generating the test.');
-      }
-    });
-
-    async function loadSubchapters() {
-      try {
-        const response = await fetch('/api/subchapters');
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          console.error("Generate test failed:", err);
-          throw new Error(err.error || "Failed to generate test");
-        }
-
-
-        const data = await response.json();
-        if (!data.ok) {
-          throw new Error('Error in subchapters response');
-        }
-
-        const subchapters = data.subchapters;
-        const subchapterContainer = document.getElementById('subchapter-container');
-        subchapterContainer.innerHTML = '';
-
-        subchapters.forEach(subchapter => {
-          const label = document.createElement('label');
-          label.classList.add('checkbox-label');
-
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.name = 'subchapters';
-          checkbox.value = subchapter.id;
-
-          label.appendChild(checkbox);
-          label.appendChild(document.createTextNode(` ${subchapter.name}`));
-
-          subchapterContainer.appendChild(label);
-        });
-      } catch (error) {
-        console.error('Error loading subchapters:', error);
-        alert('Failed to load subchapters. Please try again later.');
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', loadSubchapters);
-  </script>
+{% block scripts %}
+  <script type="module" src="/js/pages/test.js"></script>
 {% endblock %}

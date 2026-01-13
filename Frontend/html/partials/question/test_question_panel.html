@@ -1,0 +1,40 @@
+<section class="card">
+  <div id="err" class="error hidden"></div>
+
+  <div id="questionRender" class="hidden"></div>
+  <pre id="questionText"></pre>
+
+  <div id="treePanel" class="hidden"></div>
+
+  <div class="divider"></div>
+
+  <label class="sectionTitle">Answer</label>
+  <textarea id="answer" class="input" rows="3"></textarea>
+
+  <div class="row">
+    <button id="btnCheck" type="button" class="btn">Check</button>
+    <div id="checkResult" class="result hidden"></div>
+  </div>
+
+  <div id="answerOptionsWrap" class="hidden"></div>
+
+  <details id="explainPanel">
+    <summary>
+      <button id="btnExplain" type="button" class="btn btnGhost">Explanation</button>
+    </summary>
+    <pre id="explainOut"></pre>
+  </details>
+
+  <details id="jsonPanel" class="hidden">
+    <summary>
+      <button id="btnToggleJson" type="button" class="btn btnGhost">JSON</button>
+    </summary>
+    <pre id="out"></pre>
+  </details>
+</section>
+
+<div class="row rowTestNav">
+  <button id="btnPrev" type="button" class="btn btnGhost">Prev</button>
+  <div id="testProgress" class="mutedSmall"></div>
+  <button id="btnNext" type="button" class="btn btnGhost">Next</button>
+</div>

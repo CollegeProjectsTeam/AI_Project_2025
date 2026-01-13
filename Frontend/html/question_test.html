@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block title %}SmarTest · Test{% endblock %}
+
+{% block content %}
+  {% include "partials/question/testbar.html" %}
+
+
+<div id="err" class="errorBox hidden"></div>
+
+<section class="panelGrid single">
+  {% include "partials/question/question_panel.html" %}
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="/js/pages/question_test.js"></script>
+{% endblock %}

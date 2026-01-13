@@ -201,4 +201,8 @@ def register_routes(app):
     def api_generate_test_alias():
         return api_generate_test()
 
+    @app.get("/question_test")
+    def question_test_page():
+        return render_template("question_test.html")
+
     log.ok("Routes registered", {"count": len(app.url_map._rules)})

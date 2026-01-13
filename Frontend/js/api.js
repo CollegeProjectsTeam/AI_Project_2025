@@ -22,3 +22,14 @@ export async function postCheck(payload) {
   const data = await r.json();
   return { ok: r.ok, status: r.status, data };
 }
+
+export async function postGenerateTest(payload) {
+  const r = await fetch("/api/generate-test", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  const data = await r.json();
+  return { ok: r.ok, status: r.status, data };
+}
+
