@@ -4,6 +4,7 @@
 .idea/
 Backend/.env
 Backend/.env
+.env
 
 # Python cache and compiled files (ignore everywhere)
 **/__pycache__/
