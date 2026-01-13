@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import os
+import sys
 import time
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from flask import Flask, request, g
 
 from config.router import register_routes
 from Backend.services.logging_service import Logger
+
 
 log = Logger("FlaskApp")
 
@@ -51,6 +55,11 @@ def create_app() -> Flask:
     def _handle_exception(e: Exception):
         log.error("Unhandled exception", {"method": request.method, "path": request.path}, exc=e)
         return {"ok": False, "error": "internal server error"}, 500
+
+    @app.route('/favicon.ico')
+    def favicon():
+        return "", 204
+
 
     return app
 
