@@ -1,8 +1,8 @@
 import { dom } from "./question_test/dom.js";
 import { state } from "./question/state.js"; // reuse same state object shape
 import { initCheckSection } from "./question/check_section.js";
-import { initExplainSection } from "./question/explain_section.js";
-import { initJsonSection } from "./question/json_section.js";
+import { initExplainSection, lockExplainSection } from "./question/explain_section.js";
+import { initJsonSection, lockJsonSection } from "./question/json_section.js";
 import { resetQuestionUI, showQuestionText, showQuestionRender, showError, clearError } from "./question/view.js";
 import { renderAnswerOptions } from "./question/answer_options.js";
 import { tryRenderSearchStrategies } from "./question/search_strategies_render.js";
@@ -89,6 +89,14 @@ function main() {
   function render() {
     clearError(dom);
     resetQuestionUI(dom);
+
+    lockExplainSection({ dom });
+    lockJsonSection({ dom });
+
+    if (dom.explainOut) dom.explainOut.textContent = "";
+    if (dom.out) dom.out.textContent = "";
+    if (dom.checkResult) dom.checkResult.classList.add("hidden");
+
 
     const q = test[idx];
     if (!q?.question_id) {
