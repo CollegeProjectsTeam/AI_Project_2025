@@ -1,5 +1,24 @@
 from __future__ import annotations
 
+"""
+csp_payload.py
+
+Normalization and validation utilities for CSP solver payloads.
+
+This module provides:
+- `CSPPayloadNormalizer.normalize()`:
+    * fills missing top-level defaults
+    * coerces/cleans instance fields into a consistent shape:
+      variables as strings, domains as sorted unique int lists, constraints filtered
+      and lowercased, partial_assignment coerced to ints
+- `CSPPayloadValidator.validate()`:
+    * enforces required fields and consistent references
+    * optionally enforces strict partial assignment validity (values must be in domains)
+
+These helpers are typically used at API boundaries:
+- user uploads/edits a JSON payload -> normalize -> validate -> run solver
+"""
+
 from typing import Any, Dict, List, Set
 
 try:
@@ -12,8 +31,44 @@ log = Logger("CSP.Payload")
 
 
 class CSPPayloadNormalizer:
+    """
+      Normalize a CSP payload into a stable, solver-friendly structure.
+
+      The normalizer is intentionally forgiving:
+      - missing fields get defaults
+      - invalid entries are skipped rather than raising
+      - values are coerced when possible (e.g., domain entries to int)
+
+      Use `CSPPayloadValidator` after normalization to enforce correctness.
+      """
+
     @staticmethod
     def normalize(payload: JsonDict) -> JsonDict:
+        """
+             Normalize a potentially messy CSP payload.
+
+             Normalization steps:
+             - Top-level defaults:
+               inference, var_heuristic, value_heuristic, consistency, ask_for
+             - instance.variables:
+               coerced to list[str]
+             - instance.order:
+               if provided, coerced to list[str]; else defaults to variables order
+             - instance.domains:
+               coerced to dict[str, list[int]] with sorted unique ints; invalid values skipped
+             - instance.constraints:
+               coerced to list of {"type": <lowercase str>, "vars": [str, str]}
+               only keeps entries with 2 vars and a non-empty type
+             - instance.partial_assignment:
+               coerced to dict[str, int]; invalid entries skipped
+
+             Args:
+                 payload: Input dict (possibly missing fields / wrong types).
+
+             Returns:
+                 A new dict containing a normalized CSP payload.
+             """
+
         p = dict(payload or {})
 
         p.setdefault("inference", "NONE")
@@ -89,8 +144,38 @@ class CSPPayloadNormalizer:
 
 
 class CSPPayloadValidator:
+    """
+        Validate a normalized CSP payload.
+
+        This is the stricter counterpart to `CSPPayloadNormalizer`:
+        it raises ValueError on invalid structure or references.
+
+        Validation checks:
+        - variables non-empty
+        - order contains exactly the same variables
+        - domains is a dict and each variable has a non-empty list domain
+        - constraints is a list of dicts with allowed types and existing vars
+        - partial_assignment is a dict
+        - (strict mode) partial_assignment only references existing variables and
+          assigned values must belong to the corresponding domain
+        """
+
     @staticmethod
     def validate(payload: JsonDict, *, strict: bool) -> None:
+        """
+                Validate a CSP payload.
+
+                Args:
+                    payload: A payload dict (ideally already normalized).
+                    strict: If True, enforce that partial assignments are valid:
+                        - variable exists in instance.variables
+                        - assigned value is in that variable's domain
+
+                Raises:
+                    ValueError: If required fields are missing, types are wrong, references
+                        are inconsistent, or strict checks fail.
+                """
+
         inst = payload.get("instance") or {}
 
         variables = inst.get("variables") or []

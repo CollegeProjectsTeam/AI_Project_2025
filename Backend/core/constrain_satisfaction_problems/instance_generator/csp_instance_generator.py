@@ -1,5 +1,30 @@
 from __future__ import annotations
 
+"""
+csp_instance_generator.py
+
+Random instance/payload generator for Constraint Satisfaction Problems (CSP).
+
+This module builds *satisfiable* CSP instances by first sampling a hidden complete
+assignment (a "solution") and then generating domains and constraints that are
+consistent with that hidden solution.
+
+The output of `generate_random_payload()` is a JSON-serializable dictionary
+("payload") that includes:
+- solver configuration options (inference, heuristics, etc.)
+- an `instance` object (variables, order, domains, constraints, partial assignment)
+
+Constraint types currently supported by the generator:
+- "neq": X != Y
+- "lt" : X < Y
+- "gt" : X > Y
+
+Notes:
+- Randomness is controlled via `CSPGenConfig.seed`.
+- Constraints are constructed to not eliminate the hidden solution; hence the
+  generated instances are intended to be solvable (at least one solution exists).
+"""
+
 import random
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -15,6 +40,18 @@ JsonDict = Dict[str, Any]
 
 
 class CSPInstanceGenerator:
+    """
+    Factory for generating random CSP payloads and exam-style CSP instances.
+
+    The generator follows this high-level pipeline:
+
+    1) Pick variable names (A, B, C, ...).
+    2) Sample a hidden solution: a value for each variable in [value_min, value_max].
+    3) Build each variable domain around its solution value (always includes it).
+    4) Create constraints (neq/lt/gt) consistent with the hidden solution.
+    5) Optionally reveal a partial assignment (some variables fixed to solution values).
+    6) Package everything into a JSON payload usable by your solver/tracer.
+    """
     @staticmethod
     def generate_random_payload(
         config: CSPGenConfig,
@@ -26,6 +63,48 @@ class CSPInstanceGenerator:
         ask_for: str = "TRACE_UNTIL_SOLUTION",
         fixed_order: bool = True,
     ) -> JsonDict:
+        """
+               Generate a JSON-serializable CSP solver payload.
+
+               The generated CSP instance is guaranteed to contain at least one solution
+               (the internally sampled hidden solution), because domains and constraints are
+               constructed to be consistent with it.
+
+               Args:
+                   config: Generator configuration (number of vars, value range, domain sizes,
+                       number of constraints, partial assignment probability, seed).
+                   inference: Inference mode label to embed in payload (e.g., "FC", "MAC", "NONE").
+                   var_heuristic: Variable selection heuristic label (e.g., "MRV", "DEG", "FIXED").
+                   value_heuristic: Value ordering heuristic label (e.g., "LCV", "NONE").
+                   consistency: Additional consistency enforcement label (e.g., "AC3", "NONE").
+                   ask_for: What the solver should return/compute (e.g., "TRACE_UNTIL_SOLUTION").
+                   fixed_order: If True, keep variable order as generated; otherwise shuffle.
+
+               Returns:
+                   A dict payload with the following structure:
+                   {
+                     "inference": ...,
+                     "var_heuristic": ...,
+                     "value_heuristic": ...,
+                     "consistency": ...,
+                     "ask_for": ...,
+                     "instance": {
+                        "variables": [...],
+                        "order": [...],
+                        "domains": {var: [..], ...},
+                        "constraints": [{"type": "...", "vars": [a,b]}, ...],
+                        "partial_assignment": {var: value, ...}
+                     }
+                   }
+
+               Raises:
+                   ValueError: If `config.num_vars < 2` or domain size range is invalid.
+
+               Notes:
+                   - Constraint generation tries to hit `config.num_constraints`. In rare edge
+                     cases (e.g., all hidden values equal), it may not be possible to add all
+                     requested constraints while staying consistent.
+               """
         rnd = random.Random(config.seed)
 
         if config.num_vars < 2:
@@ -97,6 +176,22 @@ class CSPInstanceGenerator:
 
     @staticmethod
     def generate_fc_lcv_exam_style(seed: Optional[int] = None) -> JsonDict:
+        """
+             Generate a small CSP payload in an "exam style" configuration.
+
+             This is a convenience wrapper over `generate_random_payload()` using:
+             - 3 variables
+             - value range [0, 15]
+             - 3 constraints
+             - no partial assignment
+             - solver options: FC + FIXED variable order + LCV value heuristic
+
+             Args:
+                 seed: Optional seed for deterministic generation.
+
+             Returns:
+                 A CSP payload dict compatible with the solver pipeline.
+             """
         cfg = CSPGenConfig(
             num_vars=3,
             value_min=0,
@@ -119,6 +214,18 @@ class CSPInstanceGenerator:
 
     @staticmethod
     def _var_names(n: int) -> List[str]:
+        """
+               Build variable names for a CSP instance.
+
+               For up to 26 variables: A..Z.
+               After that: X1, X2, ...
+
+               Args:
+                   n: Number of variables.
+
+               Returns:
+                   List of variable identifiers.
+               """
         alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         if n <= len(alphabet):
             return [alphabet[i] for i in range(n)]
@@ -126,6 +233,16 @@ class CSPInstanceGenerator:
 
     @staticmethod
     def _shuffled(items: List[str], rnd: random.Random) -> List[str]:
+        """
+             Return a shuffled copy of `items`.
+
+             Args:
+                 items: Input list.
+                 rnd: Random generator (seeded).
+
+             Returns:
+                 Shuffled list copy.
+             """
         out = items[:]
         rnd.shuffle(out)
         return out
@@ -138,6 +255,18 @@ class CSPInstanceGenerator:
         vmin: int,
         vmax: int,
     ) -> Dict[str, int]:
+        """
+              Sample a complete hidden assignment (one value per variable).
+
+              Args:
+                  variables: Variable names.
+                  rnd: Random generator.
+                  vmin: Minimum allowed value (inclusive).
+                  vmax: Maximum allowed value (inclusive).
+
+              Returns:
+                  Dict mapping each variable to a sampled integer value.
+              """
         sol: Dict[str, int] = {}
         for v in variables:
             sol[v] = rnd.randint(vmin, vmax)
@@ -153,6 +282,32 @@ class CSPInstanceGenerator:
         min_size: int,
         max_size: int,
     ) -> Dict[str, List[int]]:
+        """
+               Construct variable domains ensuring each includes its solution value.
+
+               For each variable:
+               - pick a random size in [min_size, max_size]
+               - start with {solution_value}
+               - add random values from [vmin, vmax] until size is reached (or tries limit)
+
+               Args:
+                   solution: Hidden solution mapping var -> value.
+                   rnd: Random generator.
+                   vmin: Minimum value to sample.
+                   vmax: Maximum value to sample.
+                   min_size: Minimum domain size (>= 1).
+                   max_size: Maximum domain size (>= min_size).
+
+               Returns:
+                   Dict mapping var -> sorted list of unique integer domain values.
+
+               Raises:
+                   ValueError: If min/max domain size range is invalid.
+
+               Notes:
+                   The tries limit (200) prevents an infinite loop when the value range
+                   is too small to fill large domains with unique values.
+               """
         if min_size < 1 or max_size < min_size:
             raise ValueError("invalid domain size range")
 
@@ -175,6 +330,30 @@ class CSPInstanceGenerator:
         rnd: random.Random,
         target: int,
     ) -> List[JsonDict]:
+        """
+               Generate binary constraints consistent with the hidden solution.
+
+               The generator considers all unordered variable pairs and tries to add
+               constraints until `target` is reached:
+               - randomly choose relation among: neq, lt, gt
+               - only add the constraint if it is satisfied by the hidden solution
+               - avoid duplicates via a `used` set
+
+               If after this pass we still have fewer than `target` constraints, a fallback
+               pass tries to add more "neq" constraints where possible.
+
+               Args:
+                   variables: Variable list.
+                   solution: Hidden solution mapping var -> value.
+                   rnd: Random generator.
+                   target: Desired number of constraints (>= 0).
+
+               Returns:
+                   List of constraint dicts: {"type": <"neq"|"lt"|"gt">, "vars": [a, b]}.
+
+               Raises:
+                   ValueError: If target < 0.
+               """
         if target < 0:
             raise ValueError("target constraints must be >= 0")
 
@@ -258,6 +437,21 @@ class CSPInstanceGenerator:
         rnd: random.Random,
         prob: float,
     ) -> Dict[str, int]:
+        """
+               Optionally reveal a partial assignment consistent with the hidden solution.
+
+               Each variable is included with independent probability `prob`, and if included,
+               it is fixed to its solution value.
+
+               Args:
+                   variables: Variables list.
+                   solution: Hidden solution mapping var -> value.
+                   rnd: Random generator.
+                   prob: Probability of including each variable in the partial assignment.
+
+               Returns:
+                   Dict mapping some variables to their fixed values. Empty if prob <= 0.
+               """
         if prob <= 0:
             return {}
         out: Dict[str, int] = {}
