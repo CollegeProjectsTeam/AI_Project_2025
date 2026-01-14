@@ -1,5 +1,4 @@
 {% extends "layout.html" %}
-
 {% block title %}SmarTest · Generate test{% endblock %}
 
 {% block content %}
@@ -7,12 +6,30 @@
     <a class="back" href="/">← Home</a>
     <div class="topbarTitle">
       <h1>Generate test</h1>
-      <p class="subtle">Placeholder. We implement this after the question flow is complete.</p>
+      <p class="subtle">Create a custom test by selecting options below.</p>
     </div>
   </div>
 
   <section class="card">
-    <p class="muted">Coming soon: selection, combining questions, export.</p>
-    <button class="btn" disabled>Generate test</button>
+    <form id="generate-test-form">
+      <label for="num-questions">Number of Questions:</label>
+      <input type="number" id="num-questions" name="num_questions" min="1" required value="5">
+
+      <label for="difficulty">Difficulty:</label>
+      <select id="difficulty" name="difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+
+      <label>Subchapters:</label>
+      <div id="subchapter-container"></div>
+
+      <button type="submit" class="btn">Generate Test</button>
+    </form>
   </section>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="/js/pages/test.js"></script>
 {% endblock %}

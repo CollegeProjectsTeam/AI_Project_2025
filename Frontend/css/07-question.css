@@ -465,3 +465,10 @@
   word-break: break-word;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
+
+.testNav { margin-bottom: 10px; }
+.testNavLeft, .testNavRight { display:flex; gap:8px; align-items:center; }
+.testNav { display:flex; justify-content:space-between; align-items:center; }
+.btnSmall { padding:8px 10px; border-radius:10px; }
+
+

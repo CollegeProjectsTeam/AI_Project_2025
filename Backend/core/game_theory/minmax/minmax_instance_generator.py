@@ -10,8 +10,16 @@ log = Logger("MinMax.Generator")
 
 TreeNode = Dict[str, Any]
 
-
 class MinMaxInstanceGenerator:
+    """Generate random full MinMax trees for alpha-beta exercises.
+
+    The generated tree is a nested dict structure:
+    - leaf: {"value": int}
+    - internal node: {"children": [TreeNode, ...]}
+
+    The tree is always full with a fixed branching factor and depth.
+    """
+
     @staticmethod
     def _leaf(value: int) -> TreeNode:
         return {"value": int(value)}
@@ -22,6 +30,17 @@ class MinMaxInstanceGenerator:
 
     @staticmethod
     def _build_full_tree(depth: int, branching: int, vmin: int, vmax: int) -> TreeNode:
+        """Recursively build a full game tree.
+
+        Args:
+            depth: Remaining depth until reaching leaves. When depth <= 0, a leaf is created.
+            branching: Number of children for each internal node (>= 2).
+            vmin: Minimum leaf value (inclusive).
+            vmax: Maximum leaf value (inclusive).
+
+        Returns:
+            A TreeNode representing the root of the generated subtree.
+        """
         if depth <= 0:
             return MinMaxInstanceGenerator._leaf(random.randint(vmin, vmax))
         children = [
