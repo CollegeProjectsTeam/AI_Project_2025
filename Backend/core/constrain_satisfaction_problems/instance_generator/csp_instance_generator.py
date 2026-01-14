@@ -100,9 +100,9 @@ class CSPInstanceGenerator:
         cfg = CSPGenConfig(
             num_vars=3,
             value_min=0,
-            value_max=6,
+            value_max=15,
             domain_min_size=2,
-            domain_max_size=4,
+            domain_max_size=10,
             num_constraints=3,
             partial_assign_prob=0.0,
             seed=seed,

@@ -94,22 +94,22 @@ export function renderCspOptions(root) {
 
   const rules = {
     easy: {
-      vars: { min: 2, max: 4, def: 3 },
-      constraints: { min: 1, max: 6, def: 3 },
-      domMin: { min: 1, max: 4, def: 2 },
-      domMax: { min: 1, max: 5, def: 4 },
+      vars: { min: 2, max: 3, def: 3 },
+      constraints: { min: 1, max: 3, def: 3 },
+      domMin: { min: 2, max: 3, def: 2 },
+      domMax: { min: 2, max: 5, def: 3 },
     },
     medium: {
-      vars: { min: 2, max: 6, def: 4 },
-      constraints: { min: 1, max: 12, def: 6 },
-      domMin: { min: 1, max: 8, def: 2 },
-      domMax: { min: 1, max: 10, def: 5 },
+      vars: { min: 3, max: 4, def: 4 },
+      constraints: { min: 2, max: 5, def: 4 },
+      domMin: { min: 2, max: 8, def: 3 },
+      domMax: { min: 2, max: 10, def: 5 },
     },
     hard: {
       vars: { min: 2, max: 8, def: 6 },
       constraints: { min: 1, max: 20, def: 12 },
-      domMin: { min: 1, max: 10, def: 2 },
-      domMax: { min: 1, max: 12, def: 6 },
+      domMin: { min: 2, max: 10, def: 3 },
+      domMax: { min: 2, max: 12, def: 6 },
     },
   };
 

@@ -1,5 +1,23 @@
 from __future__ import annotations
 
+"""
+csp_handler.py
+
+CSP question handler for Chapter 3, Subchapter 1 (Backtracking).
+
+This handler:
+- Reads generation options (difficulty + heuristics + numeric knobs)
+- Clamps numeric knobs based on difficulty-specific rules (mirrors FE rules)
+- Generates a random CSP instance payload using CSPInstanceGenerator
+- Solves it using CSPSolver (strict validation)
+- Stores the question + expected solution in the runtime store
+
+Notes:
+- `domain_min` / `domain_max` refer to domain *size* limits (how many values per variable),
+  not numeric min/max of the values themselves.
+- Values are currently generated in the range [0..9] via CSPGenConfig(value_min=0, value_max=9).
+"""
+
 import json
 from typing import Any, Dict
 
@@ -17,13 +35,39 @@ log = Logger("QH.CSP")
 
 
 def _fmt(v: Any) -> str:
+    """
+    Format values for safe template rendering.
+
+    - Dict/list values are JSON pretty-printed (UTF-8, with diacritics).
+    - Other values are converted using str().
+
+    Args:
+        v: Any value to format.
+
+    Returns:
+        A string representation suitable for template insertion.
+    """
     if isinstance(v, (dict, list)):
         return json.dumps(v, ensure_ascii=False, indent=2)
     return str(v)
 
 
 def _render_template(template_text: str, vars: Dict[str, Any]) -> str:
+    """
+    Render a Python `.format_map(...)` template using a safe dictionary.
+
+    Missing keys are preserved as `{key}` instead of raising KeyError.
+
+    Args:
+        template_text: Template string (may include `{placeholders}`).
+        vars: Variables to inject into the template.
+
+    Returns:
+        Rendered text, or the raw template text if rendering fails.
+    """
+
     class _SafeDict(dict):
+        """Dict that returns `{missing_key}` when a key is missing."""
         def __missing__(self, key: str) -> str:
             return "{" + key + "}"
 
@@ -36,6 +80,15 @@ def _render_template(template_text: str, vars: Dict[str, Any]) -> str:
 
 
 def _label_inference(code: str) -> str:
+    """
+    Convert inference code to a user-friendly label.
+
+    Args:
+        code: Inference code (e.g., "FC", "NONE").
+
+    Returns:
+        A human-readable label.
+    """
     code = (code or "").upper()
     if code == "FC":
         return "Forward Checking"
@@ -45,6 +98,15 @@ def _label_inference(code: str) -> str:
 
 
 def _label_consistency(code: str) -> str:
+    """
+    Convert consistency code to a user-friendly label.
+
+    Args:
+        code: Consistency code (e.g., "AC3", "NONE").
+
+    Returns:
+        A human-readable label.
+    """
     code = (code or "").upper()
     if code == "AC3":
         return "AC-3"
@@ -54,6 +116,15 @@ def _label_consistency(code: str) -> str:
 
 
 def _label_var_heuristic(code: str) -> str:
+    """
+    Convert variable heuristic code to a user-friendly label.
+
+    Args:
+        code: Variable heuristic code (e.g., "MRV", "NONE").
+
+    Returns:
+        A human-readable label.
+    """
     code = (code or "").upper()
     if code == "MRV":
         return "MRV (Minimum Remaining Values)"
@@ -63,6 +134,15 @@ def _label_var_heuristic(code: str) -> str:
 
 
 def _label_value_heuristic(code: str) -> str:
+    """
+    Convert value heuristic code to a user-friendly label.
+
+    Args:
+        code: Value heuristic code (e.g., "LCV", "NONE").
+
+    Returns:
+        A human-readable label.
+    """
     code = (code or "").upper()
     if code == "LCV":
         return "LCV (Least Constraining Value)"
@@ -72,6 +152,15 @@ def _label_value_heuristic(code: str) -> str:
 
 
 def _label_ask_for(code: str) -> str:
+    """
+    Convert ask_for code to the statement shown to the user.
+
+    Args:
+        code: Ask-for code (e.g., "FINAL_ASSIGNMENT").
+
+    Returns:
+        The user-facing description.
+    """
     code = (code or "").upper()
     if code == "FINAL_ASSIGNMENT":
         return "Find a valid assignment (or report none)."
@@ -79,6 +168,17 @@ def _label_ask_for(code: str) -> str:
 
 
 def _display_instance(inst: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Prepare an instance for display in the rendered question.
+
+    Currently removes `partial_assignment` if it is empty (to reduce clutter).
+
+    Args:
+        inst: Raw instance dict.
+
+    Returns:
+        A cleaned copy of the instance dict.
+    """
     out = dict(inst or {})
     if not out.get("partial_assignment"):
         out.pop("partial_assignment", None)
@@ -86,11 +186,35 @@ def _display_instance(inst: Dict[str, Any]) -> Dict[str, Any]:
 
 
 class CSPQuestionHandler:
+    """
+    Question handler for CSP (Backtracking) exercises.
+
+    This handler is responsible for generating the CSP instance, solving it to obtain
+    the expected output, rendering the user-facing prompt, and storing the QA item.
+    """
+
     def __init__(self, qgen: QuestionGenerator):
+        """
+        Initialize the handler.
+
+        Args:
+            qgen: The global QuestionGenerator instance (kept for consistency with other handlers).
+        """
+
         self.qgen = qgen
 
     @staticmethod
     def can_handle(ch_num: int, sub_num: int) -> bool:
+        """
+        Check if this handler supports the given chapter/subchapter.
+
+        Args:
+            ch_num: Chapter number.
+            sub_num: Subchapter number.
+
+        Returns:
+            True if this handler can generate questions for the given chapter/subchapter.
+        """
         return (ch_num, sub_num) == (3, 1)
 
     def generate(
@@ -100,6 +224,28 @@ class CSPQuestionHandler:
         template_text: str,
         options: Dict[str, Any],
     ) -> Dict[str, Any]:
+        """
+              Generate and store a CSP question.
+
+              The generation uses:
+              - FC (Forward Checking) inference (or NONE)
+              - MRV / NONE variable heuristic
+              - LCV / NONE value heuristic
+              - AC3 / NONE consistency (enabled optionally)
+              - Numeric knobs: num_vars, num_constraints, domain_min, domain_max
+                clamped based on difficulty-specific rules.
+
+              Args:
+                  ch_num: Chapter number.
+                  sub_num: Subchapter number.
+                  template_text: Statement template (format string).
+                  options: Options dictionary coming from the frontend.
+
+              Returns:
+                  Response dict:
+                  - {"ok": True, "question": {...}} on success
+                  - {"ok": False, "error": "..."} on failure
+              """
         options = options or {}
         difficulty = str(options.get("difficulty") or "medium").strip().lower()
         if difficulty not in ("easy", "medium", "hard"):
@@ -110,7 +256,7 @@ class CSPQuestionHandler:
         var_heuristic = str(options.get("var_heuristic") or "NONE").strip().upper()
         value_heuristic = str(options.get("value_heuristic") or "LCV").strip().upper()
 
-        # sanitize
+        # Sanitize / enforce supported codes.
         if inference not in ("NONE", "FC"):
             inference = "FC"
         if consistency not in ("NONE", "AC3"):
@@ -126,22 +272,22 @@ class CSPQuestionHandler:
 
         rules = {
             "easy": {
-                "vars": (2, 4, 3),
-                "constraints": (1, 6, 3),
-                "domMin": (1, 4, 2),
-                "domMax": (1, 5, 4),
+                "vars": (2, 3, 3),
+                "constraints": (1, 3, 3),
+                "domMin": (2, 3, 2),
+                "domMax": (2, 5, 3),
             },
             "medium": {
-                "vars": (2, 6, 4),
-                "constraints": (1, 12, 6),
-                "domMin": (1, 8, 2),
-                "domMax": (1, 10, 5),
+                "vars": (3, 4, 4),
+                "constraints": (2, 5, 4),
+                "domMin": (2, 8, 3),
+                "domMax": (2, 10, 5),
             },
             "hard": {
                 "vars": (2, 8, 6),
                 "constraints": (1, 20, 12),
-                "domMin": (1, 10, 2),
-                "domMax": (1, 12, 6),
+                "domMin": (2, 10, 3),
+                "domMax": (2, 12, 6),
             },
         }
         r = rules.get(difficulty, rules["medium"])
