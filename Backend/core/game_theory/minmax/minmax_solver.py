@@ -9,8 +9,13 @@ log = Logger("MinMax.Solver")
 
 TreeNode = Dict[str, Any]
 
-
 class MinMaxAlphaBetaSolver:
+    """Solve a MinMax game tree using alpha-beta pruning.
+
+    Returns the minimax value at the root and the number of leaf nodes
+    that were actually evaluated (visited) during the search.
+    """
+
     @staticmethod
     def solve(instance_params: Dict[str, Any]) -> Dict[str, Any]:
         root_player = (instance_params.get("root_player") or "MAX").strip().upper()
@@ -40,6 +45,18 @@ class MinMaxAlphaBetaSolver:
 
     @staticmethod
     def _alpha_beta(node: TreeNode, is_max: bool, alpha: int, beta: int) -> Tuple[int, int]:
+        """Alpha-beta recursion.
+
+        Args:
+            node: Current tree node.
+            is_max: True if current player is MAX, False for MIN.
+            alpha: Best lower bound found so far for MAX along the path.
+            beta: Best upper bound found so far for MIN along the path.
+
+        Returns:
+            (best_value, leaf_visits) where leaf_visits counts only evaluated leaves.
+        """
+
         if is_leaf(node):
             return int(node["value"]), 1
 

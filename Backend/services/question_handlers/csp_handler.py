@@ -120,12 +120,10 @@ class CSPQuestionHandler:
         if value_heuristic not in ("NONE", "LCV"):
             value_heuristic = "LCV"
 
-        # force on EASY (cerinta ta)
         if difficulty == "easy":
             consistency = "NONE"
             value_heuristic = "NONE"
 
-        # limits backend (oglindesc FE)
         rules = {
             "easy": {
                 "vars": (2, 4, 3),
@@ -151,8 +149,8 @@ class CSPQuestionHandler:
         num_vars = clamp_int(options.get("num_vars"), r["vars"][0], r["vars"][1], r["vars"][2])
         num_constraints = clamp_int(options.get("num_constraints"), r["constraints"][0], r["constraints"][1], r["constraints"][2])
 
-        domain_min_size = clamp_int(options.get("domain_min_size"), r["domMin"][0], r["domMin"][1], r["domMin"][2])
-        domain_max_size = clamp_int(options.get("domain_max_size"), r["domMax"][0], r["domMax"][1], r["domMax"][2])
+        domain_min_size = clamp_int(options.get("domain_min"), r["domMin"][0], r["domMin"][1], r["domMin"][2])
+        domain_max_size = clamp_int(options.get("domain_max"), r["domMax"][0], r["domMax"][1], r["domMax"][2])
         if domain_max_size < domain_min_size:
             domain_max_size = domain_min_size
 

@@ -9,10 +9,8 @@ log = Logger("MinMax.Utils")
 
 TreeNode = Dict[str, Any]
 
-
 def is_leaf(node: TreeNode) -> bool:
     return isinstance(node, dict) and "value" in node and "children" not in node
-
 
 def validate_tree(node: Any) -> Tuple[bool, str]:
     if not isinstance(node, dict):
